@@ -40,6 +40,8 @@ namespace vlc
         float get_fps();
         libvlc_time_t get_length();
 
+        const char* get_mrl();
+
     private:
         vlc::basic_player& _player;
     };
