@@ -32,29 +32,34 @@ using namespace vlc;
 ////////////////////////////////////////////////////////////////////////////////
 // class vlc::basic_vmem_wrapper
 ////////////////////////////////////////////////////////////////////////////////
-bool basic_vmem_wrapper::open()
+bool basic_vmem_wrapper::open( vlc::basic_player* player )
 {
-    if( !_player.is_open() )
+    close();
+
+    _player = player;
+
+    if( !_player || !_player->is_open() )
         return false;
 
-    libvlc_video_set_format_callbacks( _player.get_mp(),
-                                       video_format_proxy,
-                                       video_cleanup_proxy );
-
-    libvlc_video_set_callbacks( _player.get_mp(),
+    libvlc_video_set_callbacks( _player->get_mp(),
                                 video_fb_lock_proxy,
                                 video_fb_unlock_proxy,
                                 video_fb_display_proxy,
                                 this );
+
+    libvlc_video_set_format_callbacks( _player->get_mp(),
+                                       video_format_proxy,
+                                       video_cleanup_proxy );
 
     return true;
 }
 
 void basic_vmem_wrapper::close()
 {
-    if( _player.is_open() ) {
-        libvlc_video_set_format_callbacks( _player.get_mp(), NULL, NULL );
-        libvlc_video_set_callbacks( _player.get_mp(), NULL, NULL, NULL, this );
+    if( _player && _player->is_open() ) {
+        libvlc_video_set_format_callbacks( _player->get_mp(), NULL, NULL );
+        libvlc_video_set_callbacks( _player->get_mp(), NULL, NULL, NULL, this );
+        _player = nullptr;
     }
 }
 
@@ -62,10 +67,10 @@ void basic_vmem_wrapper::close()
 // class vlc::vmem
 ////////////////////////////////////////////////////////////////////////////////
 vmem::vmem( vlc::basic_player& player )
-    : basic_vmem_wrapper( player ),
-      _desired_width(0), _desired_height(0),
+    : _desired_width(0), _desired_height(0),
       _media_width(0), _media_height(0)
 {
+    basic_vmem_wrapper::open( &player );
 }
 
 unsigned vmem::video_format_cb( char* chroma,
