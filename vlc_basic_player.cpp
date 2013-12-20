@@ -85,6 +85,12 @@ void basic_player::pause()
         libvlc_media_player_set_pause( _mp, true );
 }
 
+void basic_player::togglePause()
+{
+    if( is_open() )
+        libvlc_media_player_pause( _mp );
+}
+
 void basic_player::stop( bool async /*= false*/ )
 {
     if( !is_open() )

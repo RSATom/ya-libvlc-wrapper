@@ -44,6 +44,7 @@ namespace vlc
 
         void play();
         void pause();
+        void togglePause();
         void stop( bool async = false );
 
         void set_media( libvlc_media_t* );

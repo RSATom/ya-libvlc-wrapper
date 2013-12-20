@@ -218,6 +218,11 @@ void player::pause()
     _player.pause();
 }
 
+void player::togglePause()
+{
+    _player.togglePause();
+}
+
 void player::stop( bool async /*= false*/ )
 {
     _player.stop( async );
