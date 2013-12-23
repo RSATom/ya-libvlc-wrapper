@@ -59,7 +59,7 @@ void basic_vmem_wrapper::close()
     if( _player && _player->is_open() ) {
         libvlc_video_set_format_callbacks( _player->get_mp(), NULL, NULL );
         libvlc_video_set_callbacks( _player->get_mp(), NULL, NULL, NULL, this );
-        _player = nullptr;
+        _player = 0;
     }
 }
 

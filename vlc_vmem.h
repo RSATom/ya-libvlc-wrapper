@@ -36,7 +36,7 @@ namespace vlc
     class basic_vmem_wrapper {
     public:
         basic_vmem_wrapper()
-            : _player( nullptr ) {}
+            : _player( 0 ) {}
         ~basic_vmem_wrapper() { close(); }
 
         bool open( vlc::basic_player* player );
