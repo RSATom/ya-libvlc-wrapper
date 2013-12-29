@@ -67,8 +67,8 @@ void basic_vmem_wrapper::close()
 // class vlc::vmem
 ////////////////////////////////////////////////////////////////////////////////
 vmem::vmem( vlc::basic_player& player )
-    : _desired_width(0), _desired_height(0),
-      _media_width(0), _media_height(0)
+    : _desired_width( 0 ), _desired_height( 0 ),
+      _media_width( 0 ), _media_height( 0 )
 {
     basic_vmem_wrapper::open( &player );
 }
@@ -97,7 +97,7 @@ unsigned vmem::video_format_cb( char* chroma,
     _media_width  = (*width);
     _media_height = (*height);
 
-    memcpy(chroma, DEF_CHROMA, sizeof(DEF_CHROMA)-1);
+    memcpy( chroma, DEF_CHROMA, sizeof(DEF_CHROMA) - 1 );
     (*pitches) = _media_width * DEF_PIXEL_BYTES;
     (*lines)   = _media_height;
 
@@ -112,7 +112,7 @@ unsigned vmem::video_format_cb( char* chroma,
 
 void vmem::video_cleanup_cb()
 {
-    _frame_buf.resize(0);
+    _frame_buf.resize( 0 );
     _media_width  = 0;
     _media_height = 0;
 

@@ -56,7 +56,7 @@ namespace vlc
 
         //for libvlc_video_set_callbacks
         static void* video_fb_lock_proxy( void *opaque, void **planes )
-            { return reinterpret_cast<basic_vmem_wrapper*>( opaque )->video_lock_cb(planes); }
+            { return reinterpret_cast<basic_vmem_wrapper*>( opaque )->video_lock_cb( planes ); }
         static void  video_fb_unlock_proxy( void *opaque, void *picture, void *const *planes )
             { reinterpret_cast<basic_vmem_wrapper*>( opaque )->video_unlock_cb( picture, planes ); }
         static void  video_fb_display_proxy( void *opaque, void *picture )

@@ -53,7 +53,7 @@ namespace vlc
         player();
         ~player();
 
-        bool open(libvlc_instance_t* inst);
+        bool open( libvlc_instance_t* inst );
         void close();
 
         bool is_open() const { return _player.is_open(); }
@@ -64,13 +64,13 @@ namespace vlc
         int add_media( const char * mrl_or_path,
                                    unsigned optc, const char **optv,
                                    bool is_path = false )
-            { return add_media(mrl_or_path, optc, optv, 0, 0, is_path); }
+            { return add_media( mrl_or_path, optc, optv, 0, 0, is_path ); }
         int add_media( const char * mrl_or_path, bool is_path = false )
-            { return add_media(mrl_or_path, 0, 0, is_path); }
+            { return add_media( mrl_or_path, 0, 0, is_path ); }
         int add_media( const char * mrl_or_path,
-                                   unsigned optc, const char **optv,
-                                   unsigned trusted_optc, const char **trusted_optv,
-                                   bool is_path = false );
+                       unsigned optc, const char **optv,
+                       unsigned trusted_optc, const char **trusted_optv,
+                       bool is_path = false );
         bool delete_item( unsigned idx );
         void clear_items();
         int  item_count();

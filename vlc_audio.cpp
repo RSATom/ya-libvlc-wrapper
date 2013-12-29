@@ -45,7 +45,7 @@ void audio::toggle_mute()
         libvlc_audio_toggle_mute( _player.get_mp() );
 }
 
-void audio::set_mute(bool mute)
+void audio::set_mute( bool mute )
 {
     if( _player.is_open() )
         libvlc_audio_set_mute( _player.get_mp(), mute );
@@ -120,7 +120,7 @@ libvlc_audio_output_channel_t audio::get_channel()
     return (libvlc_audio_output_channel_t) libvlc_audio_get_channel( _player.get_mp() );
 }
 
-void audio::set_channel(libvlc_audio_output_channel_t channel)
+void audio::set_channel( libvlc_audio_output_channel_t channel )
 {
     if( _player.is_open() )
         libvlc_audio_set_channel( _player.get_mp(), channel );

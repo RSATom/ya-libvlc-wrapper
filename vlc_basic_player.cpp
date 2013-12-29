@@ -32,7 +32,7 @@
 using namespace vlc;
 
 basic_player::basic_player()
-    : _libvlc_instance(0), _mp(0)
+    : _libvlc_instance( 0 ), _mp( 0 )
 {
 }
 
@@ -49,7 +49,7 @@ libvlc_state_t basic_player::get_state()
     return libvlc_media_player_get_state( _mp );
 }
 
-bool basic_player::open(libvlc_instance_t* inst)
+bool basic_player::open( libvlc_instance_t* inst )
 {
     if( !inst )
         return false;
@@ -65,7 +65,7 @@ bool basic_player::open(libvlc_instance_t* inst)
 
 void basic_player::close()
 {
-    if(_mp) {
+    if( _mp ) {
         libvlc_media_player_release( _mp );
         _mp = 0;
     }

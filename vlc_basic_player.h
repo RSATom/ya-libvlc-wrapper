@@ -37,7 +37,7 @@ namespace vlc
         basic_player();
         ~basic_player();
 
-        bool open(libvlc_instance_t* inst);
+        bool open( libvlc_instance_t* inst );
         void close();
 
         bool is_open() const { return _mp != 0; }

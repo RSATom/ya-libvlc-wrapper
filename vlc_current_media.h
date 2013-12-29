@@ -34,7 +34,7 @@ namespace vlc
     class current_media
     {
     public:
-        current_media(vlc::basic_player& player)
+        current_media( vlc::basic_player& player )
             : _player( player ) {};
 
         float get_fps();

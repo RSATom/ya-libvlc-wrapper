@@ -33,9 +33,9 @@
 using namespace vlc;
 
 player::player()
-    : _libvlc_instance(0),
-      _video(_player), _audio(_player), _subtitles(_player), _current_media(_player),
-      _mode( mode_normal ), _current_idx(-1)
+    : _libvlc_instance( 0 ),
+      _video( _player ), _audio( _player ), _subtitles( _player ), _current_media( _player ),
+      _mode( mode_normal ), _current_idx( -1 )
 {
 }
 
@@ -46,7 +46,7 @@ player::~player()
 
 void player::libvlc_event_proxy( const struct libvlc_event_t* event, void* user_data )
 {
-    static_cast<player*>(user_data)->libvlc_event(event);
+    static_cast<player*>( user_data )->libvlc_event( event );
 }
 
 void player::libvlc_event( const struct libvlc_event_t* event )
@@ -56,7 +56,7 @@ void player::libvlc_event( const struct libvlc_event_t* event )
         libvlc_MediaPlayerEncounteredError == event->type )
     {
         //to avoid deadlock we should execute commands on another thread
-        boost::thread th( boost::bind(&player::next, this) );
+        boost::thread th( boost::bind( &player::next, this ) );
     }
 }
 
@@ -90,15 +90,15 @@ int player::add_media( const char * mrl_or_path,
         return -1;
 
     libvlc_media_t* media = is_path ?
-                            libvlc_media_new_path(_libvlc_instance, mrl_or_path) :
-                            libvlc_media_new_location(_libvlc_instance, mrl_or_path);
+                            libvlc_media_new_path( _libvlc_instance, mrl_or_path ) :
+                            libvlc_media_new_location( _libvlc_instance, mrl_or_path );
 
     if( !media )
         return -1;
 
     unsigned i;
     for( i = 0; i < optc; ++i )
-        libvlc_media_add_option_flag(media, optv[i], libvlc_media_option_unique);
+        libvlc_media_add_option_flag( media, optv[i], libvlc_media_option_unique );
 
     for( i = 0; i < trusted_optc; ++i )
         libvlc_media_add_option_flag( media, trusted_optv[i],
@@ -120,7 +120,7 @@ bool player::delete_item( unsigned idx )
 
     if( sz && idx < sz ) {
         if( _current_idx > static_cast<int>( idx ) ||
-            ( _current_idx == idx && (sz - 1) == _current_idx ) )
+            ( _current_idx == idx && ( sz - 1 ) == _current_idx ) )
         {
             --_current_idx;
         }
@@ -334,7 +334,7 @@ float player::get_position()
     return p < 0 ? 0 : p;
 }
 
-void player::set_position(float p)
+void player::set_position( float p )
 {
     if( !is_open() )
         return;
@@ -352,7 +352,7 @@ libvlc_time_t player::get_time()
     return t < 0 ? 0 : t ;
 }
 
-void player::set_time(libvlc_time_t t)
+void player::set_time( libvlc_time_t t )
 {
     if( !is_open() )
         return;
