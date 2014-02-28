@@ -27,8 +27,8 @@
 
 #include "vlc_player.h"
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/thread.hpp>
+#include <cassert>
+#include <thread>
 
 using namespace vlc;
 
@@ -56,7 +56,7 @@ void player::libvlc_event( const struct libvlc_event_t* event )
         libvlc_MediaPlayerEncounteredError == event->type )
     {
         //to avoid deadlock we should execute commands on another thread
-        boost::thread th( boost::bind( &player::next, this ) );
+        std::thread th( &player::next, this );
     }
 }
 
@@ -104,7 +104,7 @@ int player::add_media( const char * mrl_or_path,
         libvlc_media_add_option_flag( media, trusted_optv[i],
                                       libvlc_media_option_unique | libvlc_media_option_trusted );
 
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
     playlist_item item = { media };
     playlist_it it = _playlist.insert( _playlist.end(), item );
 
@@ -113,7 +113,7 @@ int player::add_media( const char * mrl_or_path,
 
 bool player::delete_item( unsigned idx )
 {
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
 
     unsigned sz = _playlist.size();
     assert( _current_idx < static_cast<int>( sz ) );
@@ -138,7 +138,7 @@ bool player::delete_item( unsigned idx )
 
 void player::clear_items()
 {
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
 
     playlist_it it = _playlist.begin();
     playlist_it end_it = _playlist.end();
@@ -154,21 +154,21 @@ void player::clear_items()
 
 int player::current_item()
 {
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
 
     return _current_idx;
 }
 
 int player::item_count()
 {
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
 
     return _playlist.size();
 }
 
 void player::set_current( unsigned idx )
 {
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
 
     if( idx < _playlist.size() ) {
         _current_idx = idx;
@@ -178,7 +178,7 @@ void player::set_current( unsigned idx )
 
 void player::play()
 {
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
 
     if( _playlist.empty() && _player.current_media() )
         //special case for empty playlist
@@ -203,7 +203,7 @@ void player::internalPlay( int idx )
 
 bool player::play( unsigned idx )
 {
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
 
     if( idx < _playlist.size() ) {
         internalPlay( idx );
@@ -230,7 +230,7 @@ void player::stop( bool async /*= false*/ )
 
 void player::prev()
 {
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
 
     unsigned sz = _playlist.size();
     assert( _current_idx < static_cast<int>( sz ) );
@@ -289,7 +289,7 @@ bool player::try_expand_current()
 
 void player::next()
 {
-    boost::lock_guard<mutex_t> lock( _playlist_guard );
+    std::lock_guard<mutex_t> lock( _playlist_guard );
 
     bool expanded = try_expand_current();
 
