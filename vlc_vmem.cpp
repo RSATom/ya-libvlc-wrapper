@@ -36,6 +36,9 @@ using namespace vlc;
 ////////////////////////////////////////////////////////////////////////////////
 bool basic_vmem_wrapper::open( vlc::basic_player* player )
 {
+    if( player == _player )
+        return true;
+
     close();
 
     _player = player;
@@ -61,8 +64,8 @@ void basic_vmem_wrapper::close()
     if( _player && _player->is_open() ) {
         libvlc_video_set_format_callbacks( _player->get_mp(), NULL, NULL );
         libvlc_video_set_callbacks( _player->get_mp(), NULL, NULL, NULL, this );
-        _player = 0;
     }
+    _player = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
