@@ -57,6 +57,7 @@ void player::libvlc_event( const struct libvlc_event_t* event )
     {
         //to avoid deadlock we should execute commands on another thread
         std::thread th( &player::next, this );
+        th.detach();
     }
 }
 
