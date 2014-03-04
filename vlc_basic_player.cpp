@@ -96,9 +96,10 @@ void basic_player::stop( bool async /*= false*/ )
     if( !is_open() )
         return;
 
-    if( async )
-        std::thread( libvlc_media_player_stop, _mp );
-    else
+    if( async ) {
+        std::thread th( libvlc_media_player_stop, _mp );
+        th.detach();
+    } else
         libvlc_media_player_stop( _mp );
 }
 
