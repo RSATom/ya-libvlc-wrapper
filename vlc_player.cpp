@@ -305,10 +305,11 @@ void player::next()
 
     if( expanded )
         internalPlay( _current_idx );
-    else if( _current_idx < 0 || unsigned( _current_idx ) == ( sz - 1 ) ) {
-        //if current not set or last
-        if( mode_loop == _mode )
-            internalPlay( 0 );
+    else if( ( _current_idx < 0 && sz > 0 ) ||
+             ( unsigned( _current_idx ) == ( sz - 1 ) && ( mode_loop == _mode ) ) )
+    {
+       //if current not set or current is last and loop mode enabled
+        internalPlay( 0 );
     } else
         internalPlay( _current_idx + 1 );
 }
