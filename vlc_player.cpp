@@ -117,12 +117,15 @@ bool player::delete_item( unsigned idx )
     std::lock_guard<mutex_t> lock( _playlist_guard );
 
     unsigned sz = _playlist.size();
-    assert( _current_idx < static_cast<int>( sz ) );
+    assert( _current_idx >= 0 && unsigned( _current_idx ) < sz );
 
     if( sz && idx < sz ) {
-        if( _current_idx > static_cast<int>( idx ) ||
-            ( _current_idx == idx && ( sz - 1 ) == _current_idx ) )
+        if( _current_idx >= 0 &&
+            ( unsigned( _current_idx ) > idx ||
+              ( unsigned( _current_idx ) == idx &&
+                unsigned( _current_idx ) == ( sz - 1 ) ) ) )
         {
+            //if current is after idx or is last
             --_current_idx;
         }
 
@@ -295,14 +298,15 @@ void player::next()
     bool expanded = try_expand_current();
 
     unsigned sz = _playlist.size();
-    assert( _current_idx < static_cast<int>( sz ) );
+    assert( _current_idx < int( sz ) );
 
     if( !sz )
         return;
 
     if( expanded )
         internalPlay( _current_idx );
-    else if( sz - 1 == _current_idx || _current_idx < 0 ) {
+    else if( _current_idx < 0 || unsigned( _current_idx ) == ( sz - 1 ) ) {
+        //if current not set or last
         if( mode_loop == _mode )
             internalPlay( 0 );
     } else
