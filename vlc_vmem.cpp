@@ -59,11 +59,25 @@ bool basic_vmem_wrapper::open( vlc::basic_player* player )
     return true;
 }
 
+unsigned video_format_stub( void**, char*, unsigned*, unsigned*, unsigned*, unsigned* )
+{
+    return 0;
+}
+
+void* video_fb_lock_stub( void*, void** planes )
+{
+    planes[0] = planes[1] = planes[3] = 0;
+    return 0;
+}
+
 void basic_vmem_wrapper::close()
 {
     if( _player && _player->is_open() ) {
-        libvlc_video_set_format_callbacks( _player->get_mp(), NULL, NULL );
-        libvlc_video_set_callbacks( _player->get_mp(), NULL, NULL, NULL, this );
+        libvlc_video_set_callbacks( _player->get_mp(), video_fb_lock_stub, 0, 0, 0 );
+        libvlc_video_set_format_callbacks( _player->get_mp(), video_format_stub, 0 );
+
+        //libvlc will continue to use old callbacks until playback will be stopped
+        _player->stop();
     }
     _player = 0;
 }
