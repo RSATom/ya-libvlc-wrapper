@@ -125,7 +125,7 @@ bool player::delete_item( unsigned idx )
               ( unsigned( _current_idx ) == idx &&
                 unsigned( _current_idx ) == ( sz - 1 ) ) ) )
         {
-            //if current is after idx or is last
+            //if current is after idx or is idx and is last
             --_current_idx;
         }
 
@@ -154,6 +154,10 @@ void player::clear_items()
     _playlist.clear();
 
     _current_idx = -1;
+
+    //we shouldn't stop/clear current playing item in _player
+    //since some users want to refill playlist
+    //while current media is still playing
 }
 
 int player::current_item()
@@ -185,7 +189,7 @@ void player::play()
     std::lock_guard<mutex_t> lock( _playlist_guard );
 
     if( _playlist.empty() && _player.current_media() )
-        //special case for empty playlist
+        //special case for empty playlist ( usually after clear_items() )
         _player.play();
     else
         internalPlay( _current_idx );
