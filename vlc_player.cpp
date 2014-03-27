@@ -129,12 +129,10 @@ bool player::delete_item( unsigned idx )
             --_current_idx;
         }
 
-        if( idx < sz ) {
-            playlist_it it = ( _playlist.begin() + idx );
-            libvlc_media_release( it->media );
-            _playlist.erase( it );
-            return true;
-        }
+        playlist_it it = ( _playlist.begin() + idx );
+        libvlc_media_release( it->media );
+        _playlist.erase( it );
+        return true;
     }
 
     return false;
