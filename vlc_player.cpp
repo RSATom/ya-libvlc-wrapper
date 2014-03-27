@@ -261,7 +261,8 @@ bool player::try_expand_current()
 
     assert( _current_idx < static_cast<int>( _playlist.size() ) );
 
-    libvlc_media_t* media = _playlist[_current_idx].media;
+    libvlc_media_t* media = _current_idx < 0 ? _player.current_media() :
+                                               _playlist[_current_idx].media;
     if( !media )
         return false;
 
@@ -275,6 +276,8 @@ bool player::try_expand_current()
     unsigned items_added = 0;
 
     playlist_it insert_before_it = _playlist.begin() + _current_idx + 1;
+    assert( _current_idx > 0 || _playlist.end() == insert_before_it );
+
     for( int i = 0; i < sub_items_count; ++i ) {
         libvlc_media_t* sub_item = libvlc_media_list_item_at_index( sub_items, i );
         if( sub_item ) {
@@ -289,8 +292,11 @@ bool player::try_expand_current()
     libvlc_media_list_release( sub_items );
 
     if( items_added ) {
-        _playlist.erase( _playlist.begin() + _current_idx );
-        libvlc_media_release( media );
+        if( _current_idx > 0 ) {
+            //only if we get media from _playlist, not _player
+            _playlist.erase( _playlist.begin() + _current_idx );
+            libvlc_media_release( media );
+        }
         return true;
     }
 
