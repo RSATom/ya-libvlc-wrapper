@@ -131,7 +131,10 @@ bool player::delete_item( unsigned idx )
 
         playlist_it it = ( _playlist.begin() + idx );
         libvlc_media_release( it->media );
+
         _playlist.erase( it );
+        assert( _current_idx < 0 || unsigned( _current_idx ) < _playlist.size() );
+
         return true;
     }
 
@@ -186,10 +189,11 @@ void player::play()
 {
     std::lock_guard<mutex_t> lock( _playlist_guard );
 
-    if( _playlist.empty() && _player.current_media() )
+    if( _playlist.empty() && _player.current_media() ) {
         //special case for empty playlist ( usually after clear_items() )
+        assert( -1 == _current_idx );
         _player.play();
-    else
+    } else
         internalPlay( _current_idx );
 }
 
