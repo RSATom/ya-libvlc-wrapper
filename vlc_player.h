@@ -111,9 +111,6 @@ namespace vlc
         static void libvlc_event_proxy( const struct libvlc_event_t* event, void* user_data);
         void libvlc_event( const struct libvlc_event_t* event );
 
-        bool try_expand_current();
-        void internalPlay( int idx );
-
     private:
         struct playlist_item
         {
@@ -123,6 +120,11 @@ namespace vlc
         typedef std::deque<playlist_item> playlist_t;
         typedef playlist_t::iterator playlist_it;
         typedef playlist_t::const_iterator playlist_cit;
+
+    private:
+        static void get_media_sub_items( libvlc_media_t* media, playlist_t* out );
+        bool try_expand_current();
+        void internalPlay( int idx );
 
     private:
         libvlc_instance_t* _libvlc_instance;

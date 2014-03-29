@@ -185,30 +185,35 @@ void player::set_current( unsigned idx )
     }
 }
 
-void player::play()
-{
-    std::lock_guard<mutex_t> lock( _playlist_guard );
-
-    if( _playlist.empty() && _player.current_media() ) {
-        //special case for empty playlist ( usually after clear_items() )
-        assert( -1 == _current_idx );
-        _player.play();
-    } else
-        internalPlay( _current_idx );
-}
-
 void player::internalPlay( int idx )
 {
-    if( _playlist.empty() )
+    if( idx < 0 || static_cast<unsigned>( idx ) >= _playlist.size() ) {
         return;
-
-    if( idx < 0 || static_cast<unsigned>( idx ) > ( _playlist.size() - 1 ) )
-        idx = 0;
+    }
 
     if( _player.current_media() != _playlist[idx].media )
         set_current( idx );
 
     _player.play();
+}
+
+void player::play()
+{
+    std::lock_guard<mutex_t> lock( _playlist_guard );
+
+    if( _playlist.empty() ) {
+        //special case for empty playlist ( usually after clear_items() )
+        _player.play();
+    } else {
+        const unsigned sz = _playlist.size();
+        int idx = _current_idx;
+        if( idx < 0 )
+            idx = 0;
+        else if( unsigned( idx ) >= sz )
+            idx = ( sz - 1 );
+
+        internalPlay( idx );
+    }
 }
 
 bool player::play( unsigned idx )
@@ -221,6 +226,101 @@ bool player::play( unsigned idx )
     }
 
     return false;
+}
+
+void player::prev()
+{
+    std::lock_guard<mutex_t> lock( _playlist_guard );
+
+    if( _playlist.empty() )
+        return;
+
+    const unsigned sz = _playlist.size();
+
+    if( _current_idx <= 0 ) {
+        if( mode_loop == _mode )
+            internalPlay( sz - 1 );
+    } else if( unsigned( _current_idx ) >= sz ) {
+        internalPlay( sz - 1 );
+    } else
+        internalPlay( _current_idx - 1 );
+}
+
+void player::get_media_sub_items( libvlc_media_t* media, playlist_t* out )
+{
+    assert( out );
+
+    if( !media || !out )
+        return;
+
+    libvlc_media_list_t* sub_items = libvlc_media_subitems( media );
+    if( !sub_items )
+        return;
+
+    libvlc_media_list_lock( sub_items );
+
+    int sub_items_count = libvlc_media_list_count( sub_items );
+
+    for( int i = 0; i < sub_items_count; ++i ) {
+        libvlc_media_t* sub_item = libvlc_media_list_item_at_index( sub_items, i );
+        if( sub_item ) {
+            playlist_item item = { sub_item };
+            out->push_back( item );
+        }
+    }
+
+    libvlc_media_list_unlock( sub_items );
+
+    libvlc_media_list_release( sub_items );
+}
+
+bool player::try_expand_current()
+{
+    libvlc_media_t* current_media =
+        ( _current_idx < 0 || unsigned( _current_idx ) >= _playlist.size() ) ?
+            _player.current_media() : _playlist[_current_idx].media;
+
+    playlist_t sub_items;
+    get_media_sub_items( current_media, &sub_items );
+
+    if( !sub_items.empty() ) {
+        playlist_it insert_it;
+        if( _current_idx < 0 ) {
+            insert_it = _playlist.begin();
+        } else if( unsigned( _current_idx ) >= _playlist.size() ) {
+            insert_it = _playlist.end();
+        } else {
+            insert_it = _playlist.erase( _playlist.begin() + _current_idx );
+            libvlc_media_release( current_media );
+        }
+        _current_idx = insert_it - _playlist.begin();
+        _playlist.insert( insert_it, sub_items.begin(), sub_items.end() );
+        return true;
+    }
+
+    return false;
+}
+
+void player::next()
+{
+    std::lock_guard<mutex_t> lock( _playlist_guard );
+
+    bool expanded = try_expand_current();
+
+    if( _playlist.empty() )
+        return;
+
+    const unsigned sz = _playlist.size();
+
+   if( expanded )
+        internalPlay( _current_idx );
+    else if( ( _current_idx < 0 && sz > 0 ) ||
+             ( unsigned( _current_idx ) == ( sz - 1 ) && ( mode_loop == _mode ) ) )
+    {
+       //if current not set or current is last and loop mode enabled
+        internalPlay( 0 );
+    } else
+        internalPlay( _current_idx + 1 );
 }
 
 void player::pause()
@@ -236,94 +336,6 @@ void player::togglePause()
 void player::stop( bool async /*= false*/ )
 {
     _player.stop( async );
-}
-
-void player::prev()
-{
-    std::lock_guard<mutex_t> lock( _playlist_guard );
-
-    unsigned sz = _playlist.size();
-    assert( _current_idx < static_cast<int>( sz ) );
-
-    if( !sz )
-        return;
-
-    if( _current_idx <= 0 ) {
-        if( mode_loop == _mode )
-            internalPlay( sz - 1 );
-    } else
-        internalPlay( _current_idx - 1 );
-}
-
-bool player::try_expand_current()
-{
-    //_playlist_guard should be locked before
-
-    assert( _current_idx < static_cast<int>( _playlist.size() ) );
-
-    libvlc_media_t* media = _current_idx < 0 ? _player.current_media() :
-                                               _playlist[_current_idx].media;
-    if( !media )
-        return false;
-
-    libvlc_media_list_t* sub_items = libvlc_media_subitems( media );
-    if( !sub_items )
-        return false;
-
-    libvlc_media_list_lock( sub_items );
-
-    int sub_items_count = libvlc_media_list_count( sub_items );
-    unsigned items_added = 0;
-
-    playlist_it insert_before_it = _playlist.begin() + _current_idx + 1;
-    assert( _current_idx >= 0 || _playlist.end() == insert_before_it );
-
-    for( int i = 0; i < sub_items_count; ++i ) {
-        libvlc_media_t* sub_item = libvlc_media_list_item_at_index( sub_items, i );
-        if( sub_item ) {
-            playlist_item item = { sub_item };
-            insert_before_it = _playlist.insert( insert_before_it, item ) + 1;
-            ++items_added;
-        }
-    }
-
-    libvlc_media_list_unlock( sub_items );
-
-    libvlc_media_list_release( sub_items );
-
-    if( items_added ) {
-        if( _current_idx >= 0 ) {
-            //only if we get media from _playlist, not _player
-            _playlist.erase( _playlist.begin() + _current_idx );
-            libvlc_media_release( media );
-        }
-        return true;
-    }
-
-    return false;
-}
-
-void player::next()
-{
-    std::lock_guard<mutex_t> lock( _playlist_guard );
-
-    bool expanded = try_expand_current();
-
-    unsigned sz = _playlist.size();
-    assert( _current_idx < int( sz ) );
-
-    if( !sz )
-        return;
-
-    if( expanded )
-        internalPlay( _current_idx );
-    else if( ( _current_idx < 0 && sz > 0 ) ||
-             ( unsigned( _current_idx ) == ( sz - 1 ) && ( mode_loop == _mode ) ) )
-    {
-       //if current not set or current is last and loop mode enabled
-        internalPlay( 0 );
-    } else
-        internalPlay( _current_idx + 1 );
 }
 
 float player::get_rate()
