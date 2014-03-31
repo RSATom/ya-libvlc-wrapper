@@ -92,7 +92,7 @@ namespace vlc
     class vmem : public basic_vmem_wrapper
     {
     public:
-        vmem( vlc::basic_player& player );
+        vmem();
 
         //0 - use size same as source has
         void set_desired_size( unsigned width, unsigned height );

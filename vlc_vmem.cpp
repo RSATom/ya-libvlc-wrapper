@@ -85,11 +85,10 @@ void basic_vmem_wrapper::close()
 ////////////////////////////////////////////////////////////////////////////////
 // class vlc::vmem
 ////////////////////////////////////////////////////////////////////////////////
-vmem::vmem( vlc::basic_player& player )
+vmem::vmem()
     : _desired_width( 0 ), _desired_height( 0 ),
       _media_width( 0 ), _media_height( 0 )
 {
-    basic_vmem_wrapper::open( &player );
 }
 
 unsigned vmem::video_format_cb( char* chroma,
