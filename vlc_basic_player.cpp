@@ -27,7 +27,7 @@
 
 #include "vlc_basic_player.h"
 
-#include <thread>
+#include "vlc_thread.h"
 
 using namespace vlc;
 
@@ -97,7 +97,7 @@ void basic_player::stop( bool async /*= false*/ )
         return;
 
     if( async ) {
-        std::thread th( libvlc_media_player_stop, _mp );
+        thread th( libvlc_media_player_stop, _mp );
         th.detach();
     } else
         libvlc_media_player_stop( _mp );

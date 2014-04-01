@@ -31,7 +31,7 @@
 #include <stdint.h>
 
 #include <deque>
-#include <mutex>
+#include "vlc_thread.h"
 
 #include "vlc_basic_player.h"
 #include "vlc_audio.h"
@@ -137,7 +137,7 @@ namespace vlc
 
         playback_mode_e    _mode;
 
-        typedef std::recursive_mutex mutex_t;
+        typedef recursive_mutex mutex_t;
         mutex_t    _playlist_guard;
         playlist_t _playlist;
         int        _current_idx;
