@@ -42,6 +42,9 @@ namespace vlc
 
         const char* get_mrl();
 
+        libvlc_media_t* media()
+            { return _player.current_media(); }
+
     private:
         vlc::basic_player& _player;
     };
