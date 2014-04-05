@@ -75,6 +75,8 @@ namespace vlc
         void clear_items();
         int  item_count();
 
+        libvlc_media_t* get_media( unsigned idx );
+
         int  current_item();
         void set_current( unsigned idx );
 

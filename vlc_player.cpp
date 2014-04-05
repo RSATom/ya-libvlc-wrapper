@@ -174,6 +174,17 @@ int player::item_count()
     return _playlist.size();
 }
 
+libvlc_media_t* player::get_media( unsigned idx )
+{
+    lock_guard<mutex_t> lock( _playlist_guard );
+
+    if( idx >= _playlist.size() )
+        return 0;
+
+    libvlc_media_t* media = _playlist[idx].media;
+    return media;
+}
+
 void player::set_current( unsigned idx )
 {
     lock_guard<mutex_t> lock( _playlist_guard );
