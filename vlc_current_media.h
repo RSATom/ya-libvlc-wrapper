@@ -40,8 +40,6 @@ namespace vlc
         float get_fps();
         libvlc_time_t get_length();
 
-        const char* get_mrl();
-
         vlc::media media()
             { return _player.current_media(); }
 

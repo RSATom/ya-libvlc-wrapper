@@ -46,11 +46,3 @@ libvlc_time_t current_media::get_length()
 
     return t < 0 ? 0 : t ;
 }
-
-const char* current_media::get_mrl()
-{
-    if( !_player.is_open() || 0 == _player.current_media() )
-        return 0;
-
-    return libvlc_media_get_mrl( _player.current_media() );
-}
