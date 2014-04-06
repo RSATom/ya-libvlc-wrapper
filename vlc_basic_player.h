@@ -29,6 +29,8 @@
 
 #include <vlc/vlc.h>
 
+#include "vlc_media.h"
+
 namespace vlc
 {
     class basic_player
@@ -47,9 +49,9 @@ namespace vlc
         void togglePause();
         void stop( bool async = false );
 
-        void set_media( libvlc_media_t* );
+        void set_media( const vlc::media& );
 
-        libvlc_media_t* current_media();
+        vlc::media current_media();
 
         libvlc_state_t get_state();
 

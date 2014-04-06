@@ -103,16 +103,16 @@ void basic_player::stop( bool async /*= false*/ )
         libvlc_media_player_stop( _mp );
 }
 
-libvlc_media_t* basic_player::current_media()
+vlc::media basic_player::current_media()
 {
     if( is_open() )
-        return libvlc_media_player_get_media( _mp );
+        return vlc::media( libvlc_media_player_get_media( _mp ), false );
     else
-        return 0;
+        return vlc::media();
 }
 
-void basic_player::set_media( libvlc_media_t* media )
+void basic_player::set_media( const vlc::media& media )
 {
     if( is_open() )
-        return libvlc_media_player_set_media( _mp, media );
+        return libvlc_media_player_set_media( _mp, media.libvlc_media_t() );
 }

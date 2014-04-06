@@ -75,7 +75,7 @@ namespace vlc
         void clear_items();
         int  item_count();
 
-        libvlc_media_t* get_media( unsigned idx );
+        vlc::media get_media( unsigned idx );
 
         int  current_item();
         void set_current( unsigned idx );
@@ -116,7 +116,7 @@ namespace vlc
     private:
         struct playlist_item
         {
-            libvlc_media_t* media;
+            vlc::media media;
         };
 
         typedef std::deque<playlist_item> playlist_t;
@@ -124,7 +124,7 @@ namespace vlc
         typedef playlist_t::const_iterator playlist_cit;
 
     private:
-        static void get_media_sub_items( libvlc_media_t* media, playlist_t* out );
+        static void get_media_sub_items( const vlc::media& media, playlist_t* out );
         bool try_expand_current();
         void internalPlay( int idx );
 
