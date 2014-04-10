@@ -28,6 +28,7 @@
 #pragma once
 
 #include <vlc/vlc.h>
+#include <string>
 
 namespace vlc
 {
@@ -35,7 +36,7 @@ namespace vlc
     {
     public:
         media();
-        explicit media( libvlc_media_t*, bool needs_retain );
+        explicit media( ::libvlc_media_t*, bool needs_retain );
         media( const media& other );
         ~media();
 
@@ -45,9 +46,9 @@ namespace vlc
             { return m_media == m.m_media; }
         bool operator!= ( const media& m ) const
             { return m_media != m.m_media; }
-        bool operator== ( libvlc_media_t* m ) const
+        bool operator== ( ::libvlc_media_t* m ) const
             { return m_media == m; }
-        bool operator!= ( libvlc_media_t* m ) const
+        bool operator!= ( ::libvlc_media_t* m ) const
             { return m_media != m; }
         operator bool() const
             { return m_media != 0; }
@@ -59,7 +60,7 @@ namespace vlc
         void parse();
 
         std::string mrl() const;
-        std::string meta( libvlc_meta_t meta_id ) const;
+        std::string meta( ::libvlc_meta_t meta_id ) const;
 
     private:
         void release_media();
