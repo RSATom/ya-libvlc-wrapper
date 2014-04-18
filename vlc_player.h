@@ -37,7 +37,6 @@
 #include "vlc_audio.h"
 #include "vlc_video.h"
 #include "vlc_subtitles.h"
-#include "vlc_current_media.h"
 
 namespace vlc
 {
@@ -76,6 +75,8 @@ namespace vlc
         int  item_count();
 
         vlc::media get_media( unsigned idx );
+        vlc::media current_media()
+            { return _player.current_media(); }
 
         int  current_item();
         void set_current( unsigned idx );
@@ -97,6 +98,10 @@ namespace vlc
         libvlc_time_t get_time();
         void set_time( libvlc_time_t );
 
+        libvlc_time_t get_length();
+
+        float get_fps();
+
         void set_playback_mode( playback_mode_e m )
             { _mode = m; }
 
@@ -104,7 +109,6 @@ namespace vlc
         vlc::video& video() { return _video; }
         vlc::audio& audio() { return _audio; }
         vlc::subtitles& subtitles() { return _subtitles; }
-        vlc::current_media& current_media() { return _current_media; }
 
         libvlc_media_player_t* get_mp() const
             { return _player.get_mp(); }
@@ -135,7 +139,6 @@ namespace vlc
         vlc::video         _video;
         vlc::audio         _audio;
         vlc::subtitles     _subtitles;
-        vlc::current_media _current_media;
 
         playback_mode_e    _mode;
 
@@ -144,6 +147,6 @@ namespace vlc
         playlist_t _playlist;
         int        _current_idx;
     };
-};
+}
 
 typedef vlc::player vlc_player;

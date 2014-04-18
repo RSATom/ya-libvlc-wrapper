@@ -33,7 +33,7 @@ using namespace vlc;
 
 player::player()
     : _libvlc_instance( 0 ),
-      _video( _player ), _audio( _player ), _subtitles( _player ), _current_media( _player ),
+      _video( _player ), _audio( _player ), _subtitles( _player ),
       _mode( mode_normal ), _current_idx( -1 )
 {
 }
@@ -152,13 +152,6 @@ void player::clear_items()
     //while current media is still playing
 }
 
-int player::current_item()
-{
-    lock_guard<mutex_t> lock( _playlist_guard );
-
-    return _current_idx;
-}
-
 int player::item_count()
 {
     lock_guard<mutex_t> lock( _playlist_guard );
@@ -174,6 +167,13 @@ vlc::media player::get_media( unsigned idx )
         return vlc::media();
 
     return _playlist[idx].media;
+}
+
+int player::current_item()
+{
+    lock_guard<mutex_t> lock( _playlist_guard );
+
+    return _current_idx;
 }
 
 void player::set_current( unsigned idx )
@@ -388,4 +388,22 @@ void player::set_time( libvlc_time_t t )
         return;
 
     libvlc_media_player_set_time( _player.get_mp(), t );
+}
+
+libvlc_time_t player::get_length()
+{
+    if( !_player.is_open() )
+        return 0;
+
+    libvlc_time_t t = libvlc_media_player_get_length( _player.get_mp() );
+
+    return t < 0 ? 0 : t ;
+}
+
+float player::get_fps()
+{
+    if( !_player.is_open() )
+        return 0;
+
+    return libvlc_media_player_get_fps( _player.get_mp() );
 }
