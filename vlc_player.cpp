@@ -54,9 +54,11 @@ void player::libvlc_event( const struct libvlc_event_t* event )
     if( libvlc_MediaPlayerEndReached == event->type ||
         libvlc_MediaPlayerEncounteredError == event->type )
     {
-        //to avoid deadlock we should execute commands on another thread
-        thread th( &player::next, this );
-        th.detach();
+        if( mode_single != get_playback_mode() ) {
+            //to avoid deadlock we should execute commands on another thread
+            thread th( &player::next, this );
+            th.detach();
+        }
     }
 }
 
@@ -406,4 +408,18 @@ float player::get_fps()
         return 0;
 
     return libvlc_media_player_get_fps( _player.get_mp() );
+}
+
+playback_mode_e player::get_playback_mode()
+{
+    lock_guard<mutex_t> lock( _playlist_guard );
+
+    return _mode;
+}
+
+void player::set_playback_mode( playback_mode_e m )
+{
+    lock_guard<mutex_t> lock( _playlist_guard );
+
+    _mode = m;
 }

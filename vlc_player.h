@@ -42,8 +42,10 @@ namespace vlc
 {
     enum playback_mode_e
     {
-        mode_normal,
+        mode_normal = 0,
         mode_loop,
+        mode_single,
+        mode_last = mode_single,
     };
 
     class player
@@ -102,8 +104,8 @@ namespace vlc
 
         float get_fps();
 
-        void set_playback_mode( playback_mode_e m )
-            { _mode = m; }
+        playback_mode_e get_playback_mode();
+        void set_playback_mode( playback_mode_e m );
 
         vlc::basic_player& basic_player() { return _player; }
         vlc::video& video() { return _video; }
@@ -140,10 +142,9 @@ namespace vlc
         vlc::audio         _audio;
         vlc::subtitles     _subtitles;
 
-        playback_mode_e    _mode;
-
         typedef recursive_mutex mutex_t;
         mutex_t    _playlist_guard;
+        playback_mode_e _mode;
         playlist_t _playlist;
         int        _current_idx;
     };
