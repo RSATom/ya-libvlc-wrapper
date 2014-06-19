@@ -104,6 +104,8 @@ namespace vlc
     protected:
         //on_format_setup/on_frame_ready/on_frame_cleanup will come from worker thread
         virtual void on_format_setup() {}
+        //frame_buf will be valid until return from
+        //next call of on_frame_ready or on_frame_cleanup
         virtual void on_frame_ready( const std::vector<char>& frame_buf ) = 0;
         virtual void on_frame_cleanup() = 0;
 

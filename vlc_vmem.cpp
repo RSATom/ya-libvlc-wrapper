@@ -130,11 +130,11 @@ unsigned vmem::video_format_cb( char* chroma,
 
 void vmem::video_cleanup_cb()
 {
+    on_frame_cleanup();
+
     _frame_buf.resize( 0 );
     _media_width  = 0;
     _media_height = 0;
-
-    on_frame_cleanup();
 }
 
 void* vmem::video_lock_cb( void **planes )
