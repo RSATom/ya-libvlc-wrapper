@@ -149,7 +149,7 @@ void vmem::video_unlock_cb( void* /*picture*/, void *const * /*planes*/ )
 
 void vmem::video_display_cb( void * /*picture*/ )
 {
-    on_frame_ready( _frame_buf );
+    on_frame_ready( &_frame_buf );
 }
 
 void vmem::set_desired_size( unsigned width, unsigned height )
