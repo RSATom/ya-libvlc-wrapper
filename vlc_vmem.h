@@ -99,7 +99,6 @@ namespace vlc
 
         unsigned width() const { return _media_width; }
         unsigned height() const { return _media_height; }
-        const std::vector<char>& frame_buf() { return _frame_buf; }
 
     protected:
         //on_format_setup/on_frame_ready/on_frame_cleanup will come from worker thread
