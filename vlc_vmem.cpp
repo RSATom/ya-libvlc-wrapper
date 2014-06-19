@@ -139,7 +139,7 @@ void vmem::video_cleanup_cb()
 
 void* vmem::video_lock_cb( void **planes )
 {
-    (*planes) = _frame_buf.empty()? 0 : &_frame_buf[0];
+    (*planes) = _frame_buf.empty() ? 0 : &_frame_buf[0];
     return 0;
 }
 
