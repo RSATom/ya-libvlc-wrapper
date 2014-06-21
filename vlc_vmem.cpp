@@ -96,32 +96,32 @@ unsigned vmem::video_format_cb( char* chroma,
                                 unsigned* pitches, unsigned* lines )
 {
     if ( original_media_width != _desired_width && original_media_height != _desired_height ) {
-        float src_aspect = (float)(*width) / (*height);
-        float dst_aspect = (float)_desired_width / _desired_height;
+        float src_aspect = (float) *width / *height;
+        float dst_aspect = (float) _desired_width / _desired_height;
         if ( src_aspect > dst_aspect ) {
-            if( _desired_width != (*width) ) { //don't scale if size equal
-                (*width)  = _desired_width;
-                (*height) = static_cast<unsigned>( (*width) / src_aspect + 0.5 );
+            if( _desired_width != *width ) { //don't scale if size equal
+                *width  = _desired_width;
+                *height = static_cast<unsigned>( *width / src_aspect + 0.5 );
             }
         }
         else {
-            if( _desired_height != (*height) ) { //don't scale if size equal
-                (*height) = _desired_height;
-                (*width)  = static_cast<unsigned>( (*height) * src_aspect + 0.5 );
+            if( _desired_height != *height ) { //don't scale if size equal
+                *height = _desired_height;
+                *width  = static_cast<unsigned>( *height * src_aspect + 0.5 );
             }
         }
     }
 
-    _media_width  = (*width);
-    _media_height = (*height);
+    _media_width  = *width;
+    _media_height = *height;
 
-    memcpy( chroma, DEF_CHROMA, sizeof(DEF_CHROMA) - 1 );
-    (*pitches) = _media_width * DEF_PIXEL_BYTES;
-    (*lines)   = _media_height;
+    memcpy( chroma, DEF_CHROMA, sizeof( DEF_CHROMA ) - 1 );
+    *pitches = _media_width * DEF_PIXEL_BYTES;
+    *lines   = _media_height;
 
     //+1 for vlc 2.0.3/2.1 bug workaround.
-    //They writes after buffer end boundary by some reason unknown to me...
-    _frame_buf.resize( (*pitches) * ( (*lines) + 1 ) );
+    //They writes after buffer ed boundary by some reason unknown to me...
+    _frame_buf.resize( *pitches * ( *lines + 1 ) );
 
     on_format_setup();
 
@@ -139,7 +139,7 @@ void vmem::video_cleanup_cb()
 
 void* vmem::video_lock_cb( void **planes )
 {
-    (*planes) = _frame_buf.empty() ? 0 : &_frame_buf[0];
+    *planes = _frame_buf.empty() ? 0 : &_frame_buf[0];
     return 0;
 }
 
