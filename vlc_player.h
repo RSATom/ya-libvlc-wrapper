@@ -85,7 +85,7 @@ namespace vlc
         bool play( unsigned idx );
         void pause();
         void togglePause();
-        void stop( bool async = false );
+        void stop();
         void next();
         void prev();
 

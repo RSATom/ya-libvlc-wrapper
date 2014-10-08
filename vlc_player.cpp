@@ -333,9 +333,9 @@ void player::togglePause()
     _player.togglePause();
 }
 
-void player::stop( bool async /*= false*/ )
+void player::stop()
 {
-    _player.stop( async );
+    _player.stop();
 }
 
 float player::get_rate()

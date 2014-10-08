@@ -45,7 +45,7 @@ namespace vlc
         void play();
         void pause();
         void togglePause();
-        void stop( bool async = false );
+        void stop();
 
         void set_media( const vlc::media& );
 
