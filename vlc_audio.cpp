@@ -103,8 +103,7 @@ void audio::set_track( unsigned idx )
 
     if( tracks ) {
         int id = track_idx_2_track_id( tracks, idx );
-        if( id >= 0 )
-            libvlc_audio_set_track( _player.get_mp(), id );
+        libvlc_audio_set_track( _player.get_mp(), id );
 
         libvlc_free( tracks );
     }

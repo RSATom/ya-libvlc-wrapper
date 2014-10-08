@@ -65,8 +65,7 @@ void subtitles::set_track( unsigned idx )
 
     if( tracks ) {
         int id = track_idx_2_track_id( tracks, idx );
-        if( id >= 0)
-            libvlc_video_set_spu( _player.get_mp(), id );
+        libvlc_video_set_spu( _player.get_mp(), id );
 
         libvlc_free( tracks );
     }
