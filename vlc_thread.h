@@ -25,7 +25,7 @@
 
 #pragma once
 
-#if __cplusplus >= 201103L
+#if !defined( LW_USE_STD_THREAD ) && ( __cplusplus >= 201103L || _MSC_VER >= 1700 )
 #define LW_USE_STD_THREAD 1
 #endif
 
