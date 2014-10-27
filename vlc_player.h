@@ -38,10 +38,10 @@ namespace vlc
 {
     enum playback_mode_e
     {
-        mode_normal = 0,
+        mode_single = 0, //the only supported directly by vlc::player mode
+        mode_normal,
         mode_loop,
-        mode_single,
-        mode_last = mode_single,
+        mode_last = mode_loop,
     };
 
     class player
