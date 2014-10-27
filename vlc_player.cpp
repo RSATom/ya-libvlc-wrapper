@@ -41,37 +41,11 @@ player::~player()
     close();
 }
 
-void player::libvlc_event_proxy( const struct libvlc_event_t* event, void* user_data )
-{
-    static_cast<player*>( user_data )->libvlc_event( event );
-}
-
-void player::libvlc_event( const struct libvlc_event_t* event )
-{
-    //come from another thread
-    if( libvlc_MediaPlayerEndReached == event->type ||
-        libvlc_MediaPlayerEncounteredError == event->type )
-    {
-        if( mode_single != get_playback_mode() ) {
-            //to avoid deadlock we should execute commands on another thread
-            //thread th( &player::next, this );
-            //th.detach();
-        }
-    }
-}
-
 bool player::open( libvlc_instance_t* inst )
 {
     _libvlc_instance = inst;
-    if( _player.open( inst ) ) {
-        libvlc_event_manager_t* em = libvlc_media_player_event_manager( _player.get_mp() );
 
-        libvlc_event_attach( em, libvlc_MediaPlayerEndReached, libvlc_event_proxy, this );
-        libvlc_event_attach( em, libvlc_MediaPlayerEncounteredError, libvlc_event_proxy, this );
-
-        return true;
-    }
-    return false;
+    return _player.open( inst );
 }
 
 void player::close()
