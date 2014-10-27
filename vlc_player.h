@@ -38,9 +38,9 @@ namespace vlc
 {
     enum playback_mode_e
     {
-        mode_single = 0, //the only supported directly by vlc::player mode
-        mode_normal,
-        mode_loop,
+        mode_single = 0, //default. playback will stop on current item end (or error).
+        mode_normal, //same as mode_single by default.
+        mode_loop, //have effect only to next()/prev() calls
         mode_last = mode_loop,
     };
 
