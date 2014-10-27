@@ -25,11 +25,9 @@
 
 #pragma once
 
-//include stdint.h before boost to avoid conflicts
 #include <stdint.h>
 
 #include <deque>
-#include "vlc_thread.h"
 
 #include "vlc_basic_player.h"
 #include "vlc_audio.h"
@@ -102,6 +100,7 @@ namespace vlc
 
         float get_fps();
 
+        //playback_mode does not have any effect
         playback_mode_e get_playback_mode();
         void set_playback_mode( playback_mode_e m );
 
@@ -140,8 +139,6 @@ namespace vlc
         vlc::audio         _audio;
         vlc::subtitles     _subtitles;
 
-        typedef recursive_mutex mutex_t;
-        mutex_t    _playlist_guard;
         playback_mode_e _mode;
         playlist_t _playlist;
         int        _current_idx;

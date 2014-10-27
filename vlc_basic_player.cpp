@@ -25,8 +25,6 @@
 
 #include "vlc_basic_player.h"
 
-#include "vlc_thread.h"
-
 using namespace vlc;
 
 basic_player::basic_player()

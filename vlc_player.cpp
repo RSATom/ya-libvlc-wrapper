@@ -54,8 +54,8 @@ void player::libvlc_event( const struct libvlc_event_t* event )
     {
         if( mode_single != get_playback_mode() ) {
             //to avoid deadlock we should execute commands on another thread
-            thread th( &player::next, this );
-            th.detach();
+            //thread th( &player::next, this );
+            //th.detach();
         }
     }
 }
@@ -104,7 +104,6 @@ int player::add_media( const char * mrl_or_path,
         libvlc_media_add_option_flag( media, trusted_optv[i],
                                       libvlc_media_option_unique | libvlc_media_option_trusted );
 
-    lock_guard<mutex_t> lock( _playlist_guard );
     playlist_item item = { vlc::media( media, false ) };
     playlist_it it = _playlist.insert( _playlist.end(), item );
 
@@ -113,8 +112,6 @@ int player::add_media( const char * mrl_or_path,
 
 bool player::delete_item( unsigned idx )
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     unsigned sz = _playlist.size();
     assert( _current_idx >= 0 && unsigned( _current_idx ) < sz );
 
@@ -141,8 +138,6 @@ bool player::delete_item( unsigned idx )
 
 void player::clear_items()
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     _playlist.clear();
 
     _current_idx = -1;
@@ -154,15 +149,11 @@ void player::clear_items()
 
 int player::item_count()
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     return _playlist.size();
 }
 
 vlc::media player::get_media( unsigned idx )
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     if( idx >= _playlist.size() )
         return vlc::media();
 
@@ -171,15 +162,11 @@ vlc::media player::get_media( unsigned idx )
 
 int player::current_item()
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     return _current_idx;
 }
 
 void player::set_current( unsigned idx )
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     if( idx < _playlist.size() ) {
         _current_idx = idx;
         _player.set_media( _playlist[_current_idx].media );
@@ -200,8 +187,6 @@ void player::internalPlay( int idx )
 
 void player::play()
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     if( _playlist.empty() ) {
         //special case for empty playlist ( usually after clear_items() )
         _player.play();
@@ -219,8 +204,6 @@ void player::play()
 
 bool player::play( unsigned idx )
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     if( idx < _playlist.size() ) {
         internalPlay( idx );
         return true;
@@ -231,9 +214,7 @@ bool player::play( unsigned idx )
 
 void player::prev()
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
-    if( _playlist.empty() )
+     if( _playlist.empty() )
         return;
 
     const unsigned sz = _playlist.size();
@@ -303,8 +284,6 @@ bool player::try_expand_current()
 
 void player::next()
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     bool expanded = try_expand_current();
 
     if( _playlist.empty() )
@@ -410,14 +389,10 @@ float player::get_fps()
 
 playback_mode_e player::get_playback_mode()
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     return _mode;
 }
 
 void player::set_playback_mode( playback_mode_e m )
 {
-    lock_guard<mutex_t> lock( _playlist_guard );
-
     _mode = m;
 }
