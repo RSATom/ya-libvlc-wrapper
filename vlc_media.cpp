@@ -99,6 +99,12 @@ std::string media::meta( libvlc_meta_t meta_id ) const
     return ret;
 }
 
+void media::set_meta( ::libvlc_meta_t meta_id, const std::string& meta )
+{
+    if( m_media )
+        libvlc_media_set_meta( m_media, meta_id, meta.c_str() );
+}
+
 bool media::is_parsed() const
 {
     if( m_media )

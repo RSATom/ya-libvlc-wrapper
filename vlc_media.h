@@ -59,6 +59,7 @@ namespace vlc
 
         std::string mrl() const;
         std::string meta( ::libvlc_meta_t meta_id ) const;
+        void set_meta( ::libvlc_meta_t meta_id, const std::string& meta );
 
     private:
         void release_media();
