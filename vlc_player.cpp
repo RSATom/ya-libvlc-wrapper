@@ -153,8 +153,11 @@ void player::internalPlay( int idx )
         return;
     }
 
-    if( _player.current_media() != _playlist[idx].media )
+    if( _player.current_media() != _playlist[idx].media ||
+        libvlc_Ended == get_state() )
+    {
         set_current( idx );
+    }
 
     _player.play();
 }
