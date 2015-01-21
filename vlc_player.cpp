@@ -147,7 +147,7 @@ void player::set_current( unsigned idx )
     }
 }
 
-void player::internalPlay( int idx )
+void player::internal_play( int idx )
 {
     if( idx < 0 || static_cast<unsigned>( idx ) >= _playlist.size() ) {
         return;
@@ -175,14 +175,14 @@ void player::play()
         else if( unsigned( idx ) >= sz )
             idx = ( sz - 1 );
 
-        internalPlay( idx );
+        internal_play( idx );
     }
 }
 
 bool player::play( unsigned idx )
 {
     if( idx < _playlist.size() ) {
-        internalPlay( idx );
+        internal_play( idx );
         return true;
     }
 
@@ -198,11 +198,11 @@ void player::prev()
 
     if( _current_idx <= 0 ) {
         if( mode_loop == _mode )
-            internalPlay( sz - 1 );
+            internal_play( sz - 1 );
     } else if( unsigned( _current_idx ) >= sz ) {
-        internalPlay( sz - 1 );
+        internal_play( sz - 1 );
     } else
-        internalPlay( _current_idx - 1 );
+        internal_play( _current_idx - 1 );
 }
 
 void player::get_media_sub_items( const vlc::media& media, playlist_t* out )
@@ -269,14 +269,14 @@ void player::next()
     const unsigned sz = _playlist.size();
 
    if( expanded )
-        internalPlay( _current_idx );
+        internal_play( _current_idx );
     else if( ( _current_idx < 0 && sz > 0 ) ||
              ( unsigned( _current_idx ) == ( sz - 1 ) && ( mode_loop == _mode ) ) )
     {
        //if current not set or current is last and loop mode enabled
-        internalPlay( 0 );
+        internal_play( 0 );
     } else
-        internalPlay( _current_idx + 1 );
+        internal_play( _current_idx + 1 );
 }
 
 void player::pause()

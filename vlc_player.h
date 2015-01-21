@@ -124,7 +124,7 @@ namespace vlc
     private:
         static void get_media_sub_items( const vlc::media& media, playlist_t* out );
         bool try_expand_current();
-        void internalPlay( int idx );
+        void internal_play( int idx );
 
     private:
         libvlc_instance_t* _libvlc_instance;
