@@ -113,10 +113,6 @@ namespace vlc
             { return _player.get_mp(); }
 
     private:
-        static void libvlc_event_proxy( const struct libvlc_event_t* event, void* user_data);
-        void libvlc_event( const struct libvlc_event_t* event );
-
-    private:
         struct playlist_item
         {
             vlc::media media;
