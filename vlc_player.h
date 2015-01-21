@@ -100,7 +100,6 @@ namespace vlc
 
         float get_fps();
 
-        //playback_mode does not have any effect
         playback_mode_e get_playback_mode();
         void set_playback_mode( playback_mode_e m );
 
