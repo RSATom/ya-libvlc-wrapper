@@ -78,6 +78,7 @@ namespace vlc
         vlc::media get_media( unsigned idx );
         vlc::media current_media()
             { return _player.current_media(); }
+        int find_media_index( const vlc::media& );
 
         int  current_item();
         void set_current( unsigned idx );

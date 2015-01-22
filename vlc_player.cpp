@@ -150,6 +150,18 @@ vlc::media player::get_media( unsigned idx )
     return _playlist[idx].media;
 }
 
+int player::find_media_index( const vlc::media& media )
+{
+    playlist_cit it =
+        std::find_if( _playlist.begin(), _playlist.end(),
+            [&media] ( const playlist_item& item ) -> bool {
+                return media == item.media;
+            }
+        );
+
+    return ( _playlist.end() == it ) ? -1 : ( it - _playlist.begin() );
+}
+
 int player::current_item()
 {
     return _current_idx;
