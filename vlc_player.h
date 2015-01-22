@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013-2014, Sergey Radionov <rsatom_gmail.com>
+* Copyright © 2013-2015, Sergey Radionov <rsatom_gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -72,6 +72,9 @@ namespace vlc
         void clear_items();
         int  item_count();
 
+        void disable_item( unsigned idx, bool disable );
+        bool is_item_disabled( unsigned idx );
+
         vlc::media get_media( unsigned idx );
         vlc::media current_media()
             { return _player.current_media(); }
@@ -115,6 +118,7 @@ namespace vlc
         struct playlist_item
         {
             vlc::media media;
+            bool disabled;
         };
 
         typedef std::deque<playlist_item> playlist_t;
@@ -125,6 +129,7 @@ namespace vlc
         static void get_media_sub_items( const vlc::media& media, playlist_t* out );
         bool try_expand_current();
         void internal_play( int idx );
+        int find_valid_item( int start_from_idx, bool forward );
 
     private:
         libvlc_instance_t* _libvlc_instance;

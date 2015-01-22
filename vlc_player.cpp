@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2013-2014, Sergey Radionov <rsatom_gmail.com>
+* Copyright © 2013-2015, Sergey Radionov <rsatom_gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -78,7 +78,7 @@ int player::add_media( const char * mrl_or_path,
         libvlc_media_add_option_flag( media, trusted_optv[i],
                                       libvlc_media_option_unique | libvlc_media_option_trusted );
 
-    playlist_item item = { vlc::media( media, false ) };
+    playlist_item item = { vlc::media( media, false ), false };
     playlist_it it = _playlist.insert( _playlist.end(), item );
 
     return it - _playlist.begin();
@@ -124,6 +124,22 @@ void player::clear_items()
 int player::item_count()
 {
     return _playlist.size();
+}
+
+void player::disable_item( unsigned idx, bool disable )
+{
+    if( idx >= _playlist.size() )
+        return;
+
+    _playlist[idx].disabled = disable;
+}
+
+bool player::is_item_disabled( unsigned idx )
+{
+    if( idx >= _playlist.size() )
+        return false;
+
+    return _playlist[idx].disabled;
 }
 
 vlc::media player::get_media( unsigned idx )
@@ -189,20 +205,60 @@ bool player::play( unsigned idx )
     return false;
 }
 
+int player::find_valid_item( int start_from_idx, bool forward )
+{
+    const int sz = _playlist.size();
+
+    if( !sz )
+        return -1;
+
+    if( forward ) {
+        if( start_from_idx < 0 )
+            start_from_idx = 0;
+        else if( start_from_idx > sz )
+            start_from_idx = sz;
+
+        for( int i = start_from_idx; i < sz; ++i ) {
+            if( !_playlist[i].disabled )
+                return i;
+        }
+
+        if( mode_loop == _mode ) {
+            for( int i = 0; i < start_from_idx; ++i ) {
+                if( !_playlist[i].disabled )
+                    return i;
+            }
+        }
+    } else {
+        if( start_from_idx > sz - 1 )
+            start_from_idx = sz - 1;
+
+        if( start_from_idx < -1 )
+            start_from_idx = -1;
+
+        for( int i = start_from_idx; i >= 0; --i ) {
+            if( !_playlist[i].disabled )
+                return i;
+        }
+
+        if( mode_loop == _mode ) {
+            for( int i = sz - 1; i > start_from_idx; --i ) {
+                if( !_playlist[i].disabled )
+                    return i;
+            }
+        }
+    }
+    return -1;
+}
+
 void player::prev()
 {
-     if( _playlist.empty() )
+    if( _playlist.empty() )
         return;
 
     const unsigned sz = _playlist.size();
 
-    if( _current_idx <= 0 ) {
-        if( mode_loop == _mode )
-            internal_play( sz - 1 );
-    } else if( unsigned( _current_idx ) >= sz ) {
-        internal_play( sz - 1 );
-    } else
-        internal_play( _current_idx - 1 );
+    internal_play( find_valid_item( _current_idx - 1, false ) );
 }
 
 void player::get_media_sub_items( const vlc::media& media, playlist_t* out )
@@ -266,17 +322,9 @@ void player::next()
     if( _playlist.empty() )
         return;
 
-    const unsigned sz = _playlist.size();
-
-   if( expanded )
-        internal_play( _current_idx );
-    else if( ( _current_idx < 0 && sz > 0 ) ||
-             ( unsigned( _current_idx ) == ( sz - 1 ) && ( mode_loop == _mode ) ) )
-    {
-       //if current not set or current is last and loop mode enabled
-        internal_play( 0 );
-    } else
-        internal_play( _current_idx + 1 );
+    internal_play(
+        find_valid_item(
+            expanded ? _current_idx : _current_idx + 1, true ) );
 }
 
 void player::pause()
