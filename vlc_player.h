@@ -75,6 +75,8 @@ namespace vlc
         void disable_item( unsigned idx, bool disable );
         bool is_item_disabled( unsigned idx );
 
+        void advance_item( unsigned idx, int count );
+
         vlc::media get_media( unsigned idx );
         vlc::media current_media()
             { return _player.current_media(); }

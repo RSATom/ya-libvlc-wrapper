@@ -142,6 +142,31 @@ bool player::is_item_disabled( unsigned idx )
     return _playlist[idx].disabled;
 }
 
+void player::advance_item( unsigned idx, int count )
+{
+    if( idx >= _playlist.size() ||
+        int( idx ) + count < 0 ||
+        idx + count >= _playlist.size() ||
+        0 == count )
+    {
+        return;
+    }
+
+    playlist_item save_item = _playlist[idx];
+    _playlist.erase( _playlist.begin() + idx );
+    _playlist.insert( _playlist.begin() + idx + count, save_item );
+
+    if( _current_idx < 0 )
+        return;
+
+    if( unsigned( _current_idx ) ==  idx )
+        _current_idx = idx + count;
+    else if( count > 0 && idx < unsigned( _current_idx ) && unsigned( _current_idx ) <= idx + count )
+        --_current_idx;
+    else if( count < 0 && idx + count <= unsigned( _current_idx ) && idx < unsigned( _current_idx ) )
+        ++_current_idx;
+}
+
 vlc::media player::get_media( unsigned idx )
 {
     if( idx >= _playlist.size() )
