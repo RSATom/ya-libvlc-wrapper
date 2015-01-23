@@ -59,8 +59,8 @@ namespace vlc
         bool is_playing() { return libvlc_Playing == get_state(); }
 
         int add_media( const char * mrl_or_path,
-                                   unsigned optc, const char **optv,
-                                   bool is_path = false )
+                       unsigned optc, const char **optv,
+                       bool is_path = false )
             { return add_media( mrl_or_path, optc, optv, 0, 0, is_path ); }
         int add_media( const char * mrl_or_path, bool is_path = false )
             { return add_media( mrl_or_path, 0, 0, is_path ); }
