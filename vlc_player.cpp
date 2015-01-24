@@ -27,6 +27,8 @@
 
 #include <cassert>
 
+#include <algorithm>
+
 using namespace vlc;
 
 player::player()
