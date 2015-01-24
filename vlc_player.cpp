@@ -293,8 +293,6 @@ void player::prev()
     if( _playlist.empty() )
         return;
 
-    const unsigned sz = _playlist.size();
-
     internal_play( find_valid_item( _current_idx - 1, false ) );
 }
 
