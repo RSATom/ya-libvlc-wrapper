@@ -165,7 +165,7 @@ void player::advance_item( unsigned idx, int count )
         _current_idx = idx + count;
     else if( count > 0 && idx < unsigned( _current_idx ) && unsigned( _current_idx ) <= idx + count )
         --_current_idx;
-    else if( count < 0 && idx + count <= unsigned( _current_idx ) && idx < unsigned( _current_idx ) )
+    else if( count < 0 && idx + count <= unsigned( _current_idx ) && idx > unsigned( _current_idx ) )
         ++_current_idx;
 }
 
