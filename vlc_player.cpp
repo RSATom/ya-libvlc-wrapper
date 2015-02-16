@@ -316,7 +316,7 @@ void player::get_media_sub_items( const vlc::media& media, playlist_t* out )
     for( int i = 0; i < sub_items_count; ++i ) {
         libvlc_media_t* sub_item = libvlc_media_list_item_at_index( sub_items, i );
         if( sub_item ) {
-            playlist_item item = { vlc::media( sub_item, false ) };
+            playlist_item item = { vlc::media( sub_item, false ), false };
             out->push_back( item );
         }
     }
