@@ -41,6 +41,7 @@ namespace vlc
         int get_track();
         void set_track( unsigned );
 
+        //in milliseconds
         int64_t get_delay();
         void set_delay( int64_t );
 

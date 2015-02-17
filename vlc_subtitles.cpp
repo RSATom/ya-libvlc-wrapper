@@ -76,7 +76,7 @@ int64_t subtitles::get_delay()
     if( !_player.is_open() )
         return 0;
 
-    return libvlc_video_get_spu_delay( _player.get_mp() );
+    return libvlc_video_get_spu_delay( _player.get_mp() ) / 1000;
 }
 
 void subtitles::set_delay( int64_t d )
@@ -84,5 +84,5 @@ void subtitles::set_delay( int64_t d )
     if( !_player.is_open() )
         return;
 
-    libvlc_video_set_spu_delay( _player.get_mp(), d );
+    libvlc_video_set_spu_delay( _player.get_mp(), d * 1000 );
 }
