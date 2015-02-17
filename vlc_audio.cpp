@@ -122,3 +122,19 @@ void audio::set_channel( libvlc_audio_output_channel_t channel )
     if( _player.is_open() )
         libvlc_audio_set_channel( _player.get_mp(), channel );
 }
+
+int64_t audio::get_delay()
+{
+    if( !_player.is_open() )
+        return 0;
+
+    return libvlc_audio_get_delay( _player.get_mp() ) / 1000;
+}
+
+void audio::set_delay( int64_t d )
+{
+    if( !_player.is_open() )
+        return;
+
+    libvlc_audio_set_delay( _player.get_mp(), d * 1000 );
+}

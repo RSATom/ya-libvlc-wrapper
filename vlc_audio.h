@@ -50,6 +50,10 @@ namespace vlc
         libvlc_audio_output_channel_t get_channel();
         void set_channel( libvlc_audio_output_channel_t );
 
+        //in milliseconds
+        int64_t get_delay();
+        void set_delay( int64_t );
+
     private:
         vlc::basic_player& _player;
     };
