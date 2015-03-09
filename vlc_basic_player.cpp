@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2013-2014, Sergey Radionov <rsatom_gmail.com>
+* Copyright © 2013-2015, Sergey Radionov <rsatom_gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,8 @@
 *******************************************************************************/
 
 #include "vlc_basic_player.h"
+
+#include <cassert>
 
 using namespace vlc;
 
@@ -67,6 +69,15 @@ void basic_player::close()
     }
 
     _libvlc_instance = 0;
+}
+
+void basic_player::swap( basic_player* player )
+{
+    assert( player );
+    assert( player->_libvlc_instance == _libvlc_instance );
+    libvlc_media_player_t* tmp = player->_mp;
+    player->_mp = _mp;
+    _mp = tmp;
 }
 
 void basic_player::play()

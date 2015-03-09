@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2013-2014, Sergey Radionov <rsatom_gmail.com>
+* Copyright © 2013-2015, Sergey Radionov <rsatom_gmail.com>
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,8 @@ namespace vlc
 
         bool open( libvlc_instance_t* inst );
         void close();
+
+        void swap( basic_player* );
 
         bool is_open() const { return _mp != 0; }
 
