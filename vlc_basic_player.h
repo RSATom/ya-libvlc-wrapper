@@ -55,8 +55,8 @@ namespace vlc
 
         libvlc_state_t get_state();
 
-        bool is_playing() { return libvlc_Playing == get_state(); };
-        bool is_paused() { return libvlc_Paused == get_state(); };
+        bool is_playing() { return libvlc_Playing == get_state(); }
+        bool is_paused() { return libvlc_Paused == get_state(); }
         bool is_stopped() { return libvlc_Stopped == get_state(); }
 
         libvlc_media_player_t* get_mp() const

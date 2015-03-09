@@ -39,14 +39,6 @@ basic_player::~basic_player()
     close();
 }
 
-libvlc_state_t basic_player::get_state()
-{
-    if( !is_open() )
-        return libvlc_NothingSpecial;
-
-    return libvlc_media_player_get_state( _mp );
-}
-
 bool basic_player::open( libvlc_instance_t* inst )
 {
     if( !inst )
@@ -78,6 +70,14 @@ void basic_player::swap( basic_player* player )
     libvlc_media_player_t* tmp = player->_mp;
     player->_mp = _mp;
     _mp = tmp;
+}
+
+libvlc_state_t basic_player::get_state()
+{
+    if( !is_open() )
+        return libvlc_NothingSpecial;
+
+    return libvlc_media_player_get_state( _mp );
 }
 
 void basic_player::play()
