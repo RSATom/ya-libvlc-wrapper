@@ -27,6 +27,7 @@
 
 #include <stdint.h>
 
+#include <vector>
 #include <deque>
 
 #include "vlc_basic_player.h"
@@ -42,6 +43,10 @@ namespace vlc
         mode_normal, //same as mode_single by default.
         mode_loop, //have effect only to next()/prev() calls
         mode_last = mode_loop,
+    };
+
+    struct media_player_events_callback {
+        virtual void media_player_event( const libvlc_event_t* e ) = 0;
     };
 
     class player
@@ -117,6 +122,9 @@ namespace vlc
         libvlc_media_player_t* get_mp() const
             { return _player.get_mp(); }
 
+        //events will come from worker thread
+        void register_callback( media_player_events_callback* );
+
     private:
         struct playlist_item
         {
@@ -128,11 +136,19 @@ namespace vlc
         typedef playlist_t::iterator playlist_it;
         typedef playlist_t::const_iterator playlist_cit;
 
+        typedef std::vector<media_player_events_callback*> callbacks_t;
+        typedef callbacks_t::iterator callbacks_it;
+        typedef callbacks_t::const_iterator callbacks_cit;
+
     private:
         static void get_media_sub_items( const vlc::media& media, playlist_t* out );
         bool try_expand_current();
         void internal_play( int idx );
         int find_valid_item( int start_from_idx, bool forward );
+
+        static void event_proxy( const libvlc_event_t* , void* );
+        void event( const libvlc_event_t* );
+        void events_attach( bool attach );
 
     private:
         libvlc_instance_t* _libvlc_instance;
@@ -145,6 +161,8 @@ namespace vlc
         playback_mode_e _mode;
         playlist_t _playlist;
         int        _current_idx;
+
+        callbacks_t _callbacks;
     };
 }
 

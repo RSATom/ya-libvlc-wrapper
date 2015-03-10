@@ -47,11 +47,23 @@ bool player::open( libvlc_instance_t* inst )
 {
     _libvlc_instance = inst;
 
-    return _player.open( inst );
+    if( _player.open( inst ) ) {
+        if( !_callbacks.empty() )
+            events_attach( true );
+
+        return true;
+    }
+
+    return false;
 }
 
 void player::close()
 {
+    if( !_callbacks.empty() )
+        events_attach( false );
+
+    _callbacks.clear();
+
     _player.close();
     clear_items();
     _libvlc_instance = 0;
@@ -457,4 +469,66 @@ playback_mode_e player::get_playback_mode()
 void player::set_playback_mode( playback_mode_e m )
 {
     _mode = m;
+}
+
+void player::event_proxy( const libvlc_event_t* e, void* param )
+{
+    if( !param )
+        return;
+
+    static_cast<player*>( param )->event( e );
+}
+
+void player::event( const libvlc_event_t* e )
+{
+    for( auto* callback : _callbacks )
+        callback->media_player_event( e );
+}
+
+void player::events_attach( bool attach )
+{
+    if( !is_open() )
+        return;
+
+   libvlc_event_manager_t* em =
+        libvlc_media_player_event_manager( get_mp() );
+    if( !em )
+        return;
+
+    for( int e = libvlc_MediaPlayerMediaChanged; e <= libvlc_MediaPlayerVout; ++e ) {
+        switch( e ){
+        case libvlc_MediaPlayerMediaChanged:
+        case libvlc_MediaPlayerNothingSpecial:
+        case libvlc_MediaPlayerOpening:
+        case libvlc_MediaPlayerBuffering:
+        case libvlc_MediaPlayerPlaying:
+        case libvlc_MediaPlayerPaused:
+        case libvlc_MediaPlayerStopped:
+        case libvlc_MediaPlayerForward:
+        case libvlc_MediaPlayerBackward:
+        case libvlc_MediaPlayerEndReached:
+        case libvlc_MediaPlayerEncounteredError:
+        case libvlc_MediaPlayerTimeChanged:
+        case libvlc_MediaPlayerPositionChanged:
+        case libvlc_MediaPlayerSeekableChanged:
+        case libvlc_MediaPlayerPausableChanged:
+        case libvlc_MediaPlayerTitleChanged:
+        //case libvlc_MediaPlayerSnapshotTaken:
+        case libvlc_MediaPlayerLengthChanged:
+        //case libvlc_MediaPlayerVout:
+            if( attach )
+                libvlc_event_attach( em, e, event_proxy, this );
+            else
+                libvlc_event_detach( em, e, event_proxy, this );
+            break;
+        }
+    }
+}
+
+void player::register_callback( media_player_events_callback* callback )
+{
+    if( _callbacks.empty() )
+        events_attach( true );
+
+    _callbacks.push_back( callback );
 }
