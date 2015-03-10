@@ -65,8 +65,13 @@ void basic_player::close()
 
 void basic_player::swap( basic_player* player )
 {
-    assert( player );
-    assert( player->_libvlc_instance == _libvlc_instance );
+    if( this == player )
+        return;
+
+    libvlc_instance_t *const tmp_libvlc = player->_libvlc_instance;
+    player->_libvlc_instance = _libvlc_instance;
+    _libvlc_instance = tmp_libvlc;
+
     libvlc_media_player_t* tmp = player->_mp;
     player->_mp = _mp;
     _mp = tmp;
