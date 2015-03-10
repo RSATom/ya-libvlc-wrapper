@@ -543,3 +543,37 @@ void player::unregister_callback( media_player_events_callback* callback )
             events_attach( false );
     }
 }
+
+void player::swap( player* p )
+{
+    if( this == p )
+        return;
+
+    libvlc_instance_t *const tmp_libvlc = p->_libvlc_instance;
+    p->_libvlc_instance = _libvlc_instance;
+    _libvlc_instance = tmp_libvlc;
+
+    if( !p->_callbacks.empty() )
+        p->events_attach( false );
+
+    if( !_callbacks.empty() )
+        events_attach( false );
+
+    _player.swap( &( p->_player ) );
+
+    _playlist.swap( p->_playlist );
+
+    const playback_mode_e tmp_mode = p->_mode;
+    p->_mode = _mode;
+    _mode = tmp_mode;
+
+    const int tmp_current_idx = p->_current_idx;
+    p->_current_idx = _current_idx;
+    _current_idx = tmp_current_idx;
+
+    if( !p->_callbacks.empty() )
+        p->events_attach( true );
+
+    if( !_callbacks.empty() )
+        events_attach( true );
+}

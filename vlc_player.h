@@ -126,6 +126,8 @@ namespace vlc
         void register_callback( media_player_events_callback* );
         void unregister_callback( media_player_events_callback* );
 
+        void swap( player* );
+
     private:
         struct playlist_item
         {
