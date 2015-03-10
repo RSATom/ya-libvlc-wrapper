@@ -124,6 +124,7 @@ namespace vlc
 
         //events will come from worker thread
         void register_callback( media_player_events_callback* );
+        void unregister_callback( media_player_events_callback* );
 
     private:
         struct playlist_item

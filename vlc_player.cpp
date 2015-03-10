@@ -532,3 +532,14 @@ void player::register_callback( media_player_events_callback* callback )
 
     _callbacks.push_back( callback );
 }
+
+void player::unregister_callback( media_player_events_callback* callback )
+{
+    auto it = std::find( _callbacks.begin(), _callbacks.end(), callback );
+    if( it != _callbacks.end() ) {
+        _callbacks.erase( it );
+
+        if( _callbacks.empty() )
+            events_attach( false );
+    }
+}
