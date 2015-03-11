@@ -34,7 +34,7 @@ namespace vlc
     class basic_vmem_wrapper {
     public:
         basic_vmem_wrapper()
-            : _player( 0 ) {}
+            : _mp( 0 ) {}
         ~basic_vmem_wrapper() { close(); }
 
         bool open( vlc::basic_player* player );
@@ -76,7 +76,7 @@ namespace vlc
         //end (for libvlc_video_set_callbacks)
 
     private:
-        vlc::basic_player* _player;
+        libvlc_media_player_t* _mp;
     };
 
     const char DEF_CHROMA[] = "RV32";

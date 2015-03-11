@@ -34,23 +34,24 @@ using namespace vlc;
 ////////////////////////////////////////////////////////////////////////////////
 bool basic_vmem_wrapper::open( vlc::basic_player* player )
 {
-    if( player == _player )
+    if( player->is_open() && player->get_mp() == _mp )
         return true;
 
     close();
 
-    _player = player;
-
-    if( !_player || !_player->is_open() )
+    if( !player->is_open() )
         return false;
 
-    libvlc_video_set_callbacks( _player->get_mp(),
+    _mp = player->get_mp();
+    libvlc_media_player_retain( _mp );
+
+    libvlc_video_set_callbacks( _mp,
                                 video_fb_lock_proxy,
                                 video_fb_unlock_proxy,
                                 video_fb_display_proxy,
                                 this );
 
-    libvlc_video_set_format_callbacks( _player->get_mp(),
+    libvlc_video_set_format_callbacks( _mp,
                                        video_format_proxy,
                                        video_cleanup_proxy );
 
@@ -70,14 +71,15 @@ void* video_fb_lock_stub( void*, void** planes )
 
 void basic_vmem_wrapper::close()
 {
-    if( _player && _player->is_open() ) {
-        libvlc_video_set_callbacks( _player->get_mp(), video_fb_lock_stub, 0, 0, 0 );
-        libvlc_video_set_format_callbacks( _player->get_mp(), video_format_stub, 0 );
+    if( _mp ) {
+        libvlc_video_set_callbacks( _mp, video_fb_lock_stub, 0, 0, 0 );
+        libvlc_video_set_format_callbacks( _mp, video_format_stub, 0 );
 
         //libvlc will continue to use old callbacks until playback will be stopped
-        _player->stop();
+        libvlc_media_player_stop( _mp );
+        libvlc_media_player_release( _mp );
+        _mp = 0;
     }
-    _player = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
