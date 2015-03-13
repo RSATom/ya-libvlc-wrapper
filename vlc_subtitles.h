@@ -33,7 +33,7 @@ namespace vlc
     {
     public:
         subtitles( vlc::basic_player& player )
-            : _player( player ) {};
+            : _player( player ) {}
 
         unsigned track_count();
 
@@ -44,6 +44,8 @@ namespace vlc
         //in milliseconds
         int64_t get_delay();
         void set_delay( int64_t );
+
+        bool load( const std::string& file );
 
     private:
         vlc::basic_player& _player;
