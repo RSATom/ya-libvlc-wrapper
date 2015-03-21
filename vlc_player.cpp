@@ -98,6 +98,17 @@ int player::add_media( const char * mrl_or_path,
     return it - _playlist.begin();
 }
 
+int player::add_media( const vlc::media& media )
+{
+    if( !is_open() )
+        return -1;
+
+    playlist_item item = { media, false };
+    playlist_it it = _playlist.insert( _playlist.end(), item );
+
+    return it - _playlist.begin();
+}
+
 bool player::delete_item( unsigned idx )
 {
     unsigned sz = _playlist.size();

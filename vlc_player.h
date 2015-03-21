@@ -73,6 +73,8 @@ namespace vlc
                        unsigned optc, const char **optv,
                        unsigned trusted_optc, const char **trusted_optv,
                        bool is_path = false );
+        int add_media( const vlc::media& media );
+
         bool delete_item( unsigned idx );
         void clear_items();
         int  item_count();
