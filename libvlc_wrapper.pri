@@ -5,7 +5,8 @@ HEADERS += $$PWD/vlc_vmem.h \
     $$PWD/vlc_player.h \
     $$PWD/vlc_subtitles.h \
     $$PWD/vlc_video.h \
-    $$PWD/vlc_media.h
+    $$PWD/vlc_media.h \
+    $$PWD/callbacks_holder.h
 
 SOURCES += $$PWD/vlc_vmem.cpp \
     $$PWD/vlc_audio.cpp \
