@@ -48,7 +48,7 @@ bool player::open( libvlc_instance_t* inst )
     _libvlc_instance = inst;
 
     if( _player.open( inst ) ) {
-        if( !_callbacks.empty() )
+        if( has_callbacks() )
             events_attach( true );
 
         return true;
@@ -59,10 +59,11 @@ bool player::open( libvlc_instance_t* inst )
 
 void player::close()
 {
-    if( !_callbacks.empty() )
+    if( has_callbacks() )
         events_attach( false );
 
-    _callbacks.clear();
+    assert( !has_callbacks() );
+    clear_callbacks();
 
     _player.close();
     clear_items();
@@ -492,8 +493,12 @@ void player::event_proxy( const libvlc_event_t* e, void* param )
 
 void player::event( const libvlc_event_t* e )
 {
-    for( auto* callback : _callbacks )
-        callback->media_player_event( e );
+    for_each_callback(
+        [e] ( media_player_events_callback *const & callback )
+        {
+            callback->media_player_event( e );
+        }
+    );
 }
 
 void player::events_attach( bool attach )
@@ -538,21 +543,18 @@ void player::events_attach( bool attach )
 
 void player::register_callback( media_player_events_callback* callback )
 {
-    if( _callbacks.empty() )
+    if( !has_callbacks() )
         events_attach( true );
 
-    _callbacks.push_back( callback );
+    callbacks_holder::register_callback( callback );
 }
 
 void player::unregister_callback( media_player_events_callback* callback )
 {
-    auto it = std::find( _callbacks.begin(), _callbacks.end(), callback );
-    if( it != _callbacks.end() ) {
-        _callbacks.erase( it );
+    callbacks_holder::unregister_callback( callback );
 
-        if( _callbacks.empty() )
-            events_attach( false );
-    }
+    if( !has_callbacks() )
+        events_attach( false );
 }
 
 void player::swap( player* p )
@@ -564,10 +566,10 @@ void player::swap( player* p )
     p->_libvlc_instance = _libvlc_instance;
     _libvlc_instance = tmp_libvlc;
 
-    if( !p->_callbacks.empty() )
+    if( p->has_callbacks() )
         p->events_attach( false );
 
-    if( !_callbacks.empty() )
+    if( has_callbacks() )
         events_attach( false );
 
     _player.swap( &( p->_player ) );
@@ -582,9 +584,9 @@ void player::swap( player* p )
     p->_current_idx = _current_idx;
     _current_idx = tmp_current_idx;
 
-    if( !p->_callbacks.empty() )
+    if( p->has_callbacks() )
         p->events_attach( true );
 
-    if( !_callbacks.empty() )
+    if( has_callbacks() )
         events_attach( true );
 }

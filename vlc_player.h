@@ -30,6 +30,7 @@
 #include <vector>
 #include <deque>
 
+#include "callbacks_holder.h"
 #include "vlc_basic_player.h"
 #include "vlc_audio.h"
 #include "vlc_video.h"
@@ -45,12 +46,16 @@ namespace vlc
         mode_last = mode_loop,
     };
 
-    struct media_player_events_callback {
+    struct media_player_events_callback
+    {
         virtual void media_player_event( const libvlc_event_t* e ) = 0;
     };
 
     class player
+        : protected callbacks_holder<media_player_events_callback>
     {
+        typedef callbacks_holder<media_player_events_callback> callbacks_holder;
+
     public:
         player();
         ~player();
@@ -125,8 +130,8 @@ namespace vlc
             { return _player.get_mp(); }
 
         //events will come from worker thread
-        void register_callback( media_player_events_callback* );
-        void unregister_callback( media_player_events_callback* );
+        void register_callback( media_player_events_callback* ) override;
+        void unregister_callback( media_player_events_callback* ) override;
 
         void swap( player* );
 
@@ -140,10 +145,6 @@ namespace vlc
         typedef std::deque<playlist_item> playlist_t;
         typedef playlist_t::iterator playlist_it;
         typedef playlist_t::const_iterator playlist_cit;
-
-        typedef std::vector<media_player_events_callback*> callbacks_t;
-        typedef callbacks_t::iterator callbacks_it;
-        typedef callbacks_t::const_iterator callbacks_cit;
 
     private:
         static void get_media_sub_items( const vlc::media& media, playlist_t* out );
@@ -166,8 +167,6 @@ namespace vlc
         playback_mode_e _mode;
         playlist_t _playlist;
         int        _current_idx;
-
-        callbacks_t _callbacks;
     };
 }
 
