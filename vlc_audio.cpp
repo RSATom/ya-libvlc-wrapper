@@ -29,6 +29,16 @@
 
 using namespace vlc;
 
+void audio::notify( audio_event_e event )
+{
+    for_each_callback(
+        [event] ( audio_events_callback* callback )
+        {
+            callback->audio_event( event );
+        }
+    );
+}
+
 bool audio::is_muted()
 {
     if( !_player.is_open() )
@@ -39,14 +49,18 @@ bool audio::is_muted()
 
 void audio::toggle_mute()
 {
-    if( _player.is_open() )
+    if( _player.is_open() ) {
         libvlc_audio_toggle_mute( _player.get_mp() );
+        notify( audio_event_e::mute_changed );
+    }
 }
 
 void audio::set_mute( bool mute )
 {
-    if( _player.is_open() )
+    if( _player.is_open() ) {
         libvlc_audio_set_mute( _player.get_mp(), mute );
+        notify( audio_event_e::mute_changed );
+    }
 }
 
 unsigned audio::get_volume()
@@ -61,8 +75,10 @@ unsigned audio::get_volume()
 
 void audio::set_volume( unsigned volume )
 {
-    if( _player.is_open() )
+    if( _player.is_open() ) {
         libvlc_audio_set_volume( _player.get_mp() , volume );
+        notify( audio_event_e::volume_changed );
+    }
 }
 
 unsigned audio::track_count()

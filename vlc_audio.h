@@ -25,11 +25,25 @@
 
 #pragma once
 
+#include "callbacks_holder.h"
+
 #include "vlc_basic_player.h"
 
 namespace vlc
 {
+    enum class audio_event_e
+    {
+        mute_changed,
+        volume_changed,
+    };
+
+    struct audio_events_callback
+    {
+        virtual void audio_event( const audio_event_e e ) = 0;
+    };
+
     class audio
+        : public callbacks_holder<audio_events_callback>
     {
     public:
         audio( vlc::basic_player& player )
@@ -53,6 +67,9 @@ namespace vlc
         //in milliseconds
         int64_t get_delay();
         void set_delay( int64_t );
+
+    private:
+        void notify( audio_event_e );
 
     private:
         vlc::basic_player& _player;
