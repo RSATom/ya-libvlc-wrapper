@@ -39,7 +39,7 @@ namespace vlc
 
     struct audio_events_callback
     {
-        virtual void audio_event( const audio_event_e e ) = 0;
+        virtual void audio_event( audio_event_e e ) = 0;
     };
 
     class audio
