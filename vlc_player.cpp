@@ -133,7 +133,7 @@ bool player::delete_item( unsigned idx )
         assert( _current_idx < 0 || unsigned( _current_idx ) < _playlist.size() );
 
         //if deleting item which is playing now - have to play next item
-        if( save_current == idx && is_playing() )
+        if( save_current >= 0 && unsigned( save_current ) == idx && is_playing() )
             internal_play( find_valid_item( save_current, true ) );
 
         return true;
