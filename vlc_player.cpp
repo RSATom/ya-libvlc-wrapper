@@ -116,6 +116,8 @@ bool player::delete_item( unsigned idx )
     assert( _current_idx >= 0 && unsigned( _current_idx ) < sz );
 
     if( sz && idx < sz ) {
+        const int save_current = _current_idx;
+
         if( _current_idx >= 0 &&
             ( unsigned( _current_idx ) > idx ||
               ( unsigned( _current_idx ) == idx &&
@@ -129,6 +131,10 @@ bool player::delete_item( unsigned idx )
 
         _playlist.erase( it );
         assert( _current_idx < 0 || unsigned( _current_idx ) < _playlist.size() );
+
+        //if deleting item which is playing now - have to play next item
+        if( save_current == idx && is_playing() )
+            internal_play( find_valid_item( save_current, true ) );
 
         return true;
     }
