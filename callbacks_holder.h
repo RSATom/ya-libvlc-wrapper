@@ -29,6 +29,7 @@
 #include <deque>
 #include <functional>
 #include <algorithm>
+#include <mutex>
 
 template<typename callback_t>
 class callbacks_holder
@@ -51,6 +52,7 @@ private:
     typedef std::deque<callback_t*> callbacks_t;
 
 private:
+    mutable std::mutex _callbacks_guard;
     callbacks_t _callbacks;
 };
 
@@ -63,14 +65,15 @@ callbacks_holder<callback_t>::~callbacks_holder()
 template<typename callback_t>
 void callbacks_holder<callback_t>::register_callback( callback_t* callback )
 {
+    std::lock_guard<std::mutex> lock( _callbacks_guard );
     assert( _callbacks.end() == std::find( _callbacks.begin(), _callbacks.end(), callback ) );
-
     _callbacks.push_back( callback );
 }
 
 template<typename callback_t>
 void callbacks_holder<callback_t>::unregister_callback( callback_t* callback )
 {
+    std::lock_guard<std::mutex> lock( _callbacks_guard );
     auto it = std::find( _callbacks.begin(), _callbacks.end(), callback );
     if( it != _callbacks.end() ) {
         _callbacks.erase( it );
@@ -80,5 +83,6 @@ void callbacks_holder<callback_t>::unregister_callback( callback_t* callback )
 template<typename callback_t>
 void callbacks_holder<callback_t>::for_each_callback( const std::function<void( callback_t* )>& f ) const
 {
+    std::lock_guard<std::mutex> lock( _callbacks_guard );
     std::for_each( _callbacks.begin(), _callbacks.end(), f );
 }
