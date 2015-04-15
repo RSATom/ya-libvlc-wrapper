@@ -87,6 +87,9 @@ namespace vlc
         void disable_item( unsigned idx, bool disable );
         bool is_item_disabled( unsigned idx );
 
+        void set_item_data( unsigned idx, const std::string& );
+        const std::string& get_item_data( unsigned idx );
+
         void advance_item( unsigned idx, int count );
 
         vlc::media get_media( unsigned idx );
@@ -140,6 +143,7 @@ namespace vlc
         {
             vlc::media media;
             bool disabled;
+            std::string data;
         };
 
         typedef std::deque<playlist_item> playlist_t;

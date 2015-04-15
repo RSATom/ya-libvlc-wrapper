@@ -174,6 +174,24 @@ bool player::is_item_disabled( unsigned idx )
     return _playlist[idx].disabled;
 }
 
+void player::set_item_data( unsigned idx, const std::string& data )
+{
+    if( idx >= _playlist.size() )
+        return;
+
+    _playlist[idx].data = data;
+}
+
+const std::string& player::get_item_data( unsigned idx )
+{
+    static const std::string empty;
+
+    if( idx >= _playlist.size() )
+        return empty;
+
+    return _playlist[idx].data;
+}
+
 void player::advance_item( unsigned idx, int count )
 {
     if( idx >= _playlist.size() ||
