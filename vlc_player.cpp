@@ -376,12 +376,23 @@ void player::get_media_sub_items( const vlc::media& media, playlist_t* out )
 
 bool player::try_expand_current()
 {
-    vlc::media current_media =
-        ( _current_idx < 0 || unsigned( _current_idx ) >= _playlist.size() ) ?
-            _player.current_media() : _playlist[_current_idx].media;
+    vlc::media current_media;
+    std::string current_media_data;
+    if( _current_idx < 0 || unsigned( _current_idx ) >= _playlist.size() ) {
+        current_media = _player.current_media();
+    } else {
+        current_media = _playlist[_current_idx].media;
+        current_media_data = _playlist[_current_idx].data;
+    }
 
     playlist_t sub_items;
     get_media_sub_items( current_media, &sub_items );
+
+    if( !current_media_data.empty() ) {
+        for( auto& i: sub_items ) {
+            i.data = current_media_data;
+        }
+    }
 
     if( !sub_items.empty() ) {
         playlist_it insert_it;
