@@ -68,21 +68,21 @@ namespace vlc
         libvlc_state_t get_state() { return _player.get_state(); }
         bool is_playing() { return libvlc_Playing == get_state(); }
 
-        int add_media( const char * mrl_or_path,
+        int add_media( const char* mrl_or_path,
                        unsigned optc, const char **optv,
                        bool is_path = false )
             { return add_media( mrl_or_path, optc, optv, 0, 0, is_path ); }
-        int add_media( const char * mrl_or_path, bool is_path = false )
+        int add_media( const char* mrl_or_path, bool is_path = false )
             { return add_media( mrl_or_path, 0, 0, is_path ); }
-        int add_media( const char * mrl_or_path,
-                       unsigned optc, const char **optv,
-                       unsigned trusted_optc, const char **trusted_optv,
+        int add_media( const char* mrl_or_path,
+                       unsigned optc, const char** optv,
+                       unsigned trusted_optc, const char** trusted_optv,
                        bool is_path = false );
         int add_media( const vlc::media& media );
 
         bool delete_item( unsigned idx );
         void clear_items();
-        int  item_count();
+        int item_count();
 
         void disable_item( unsigned idx, bool disable );
         bool is_item_disabled( unsigned idx );
@@ -97,7 +97,7 @@ namespace vlc
             { return _player.current_media(); }
         int find_media_index( const vlc::media& );
 
-        int  current_item();
+        int current_item();
         void set_current( unsigned idx );
 
         void play();
@@ -112,7 +112,7 @@ namespace vlc
         void set_rate( float );
 
         float get_position();
-        void  set_position( float );
+        void set_position( float );
 
         libvlc_time_t get_time();
         void set_time( libvlc_time_t );
