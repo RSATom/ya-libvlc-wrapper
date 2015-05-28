@@ -1,3 +1,7 @@
+include( libvlc-sdk/libvlc-sdk.pri )
+
+CONFIG += c++11
+
 HEADERS += $$PWD/vlc_vmem.h \
     $$PWD/vlc_audio.h \
     $$PWD/vlc_basic_player.h \
