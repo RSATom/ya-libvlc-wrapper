@@ -93,7 +93,7 @@ int player::add_media( const char * mrl_or_path,
         libvlc_media_add_option_flag( media, trusted_optv[i],
                                       libvlc_media_option_unique | libvlc_media_option_trusted );
 
-    playlist_item item = { vlc::media( media, false ), false };
+    playlist_item item = { vlc::media( media, false ), false, std::string() };
     playlist_it it = _playlist.insert( _playlist.end(), item );
 
     return it - _playlist.begin();
@@ -104,7 +104,7 @@ int player::add_media( const vlc::media& media )
     if( !is_open() )
         return -1;
 
-    playlist_item item = { media, false };
+    playlist_item item = { media, false, std::string() };
     playlist_it it = _playlist.insert( _playlist.end(), item );
 
     return it - _playlist.begin();
@@ -364,7 +364,7 @@ void player::get_media_sub_items( const vlc::media& media, playlist_t* out )
     for( int i = 0; i < sub_items_count; ++i ) {
         libvlc_media_t* sub_item = libvlc_media_list_item_at_index( sub_items, i );
         if( sub_item ) {
-            playlist_item item = { vlc::media( sub_item, false ), false };
+            playlist_item item = { vlc::media( sub_item, false ), false, std::string() };
             out->push_back( item );
         }
     }
