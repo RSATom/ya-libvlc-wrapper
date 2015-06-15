@@ -12,3 +12,7 @@ file( GLOB SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 add_library( libvlc_wrapper STATIC ${SOURCE_FILES} )
 set_target_properties( libvlc_wrapper PROPERTIES POSITION_INDEPENDENT_CODE ON )
 target_include_directories( libvlc_wrapper PUBLIC "libvlc-sdk/include" )
+
+if( MSVC )
+    target_link_libraries( libvlc_wrapper ${CMAKE_CURRENT_SOURCE_DIR}/libvlc-sdk/lib/msvc/libvlc.lib )
+endif()
