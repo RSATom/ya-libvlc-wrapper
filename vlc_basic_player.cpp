@@ -122,5 +122,5 @@ vlc::media basic_player::current_media()
 void basic_player::set_media( const vlc::media& media )
 {
     if( is_open() )
-        return libvlc_media_player_set_media( _mp, media.libvlc_media_t() );
+        libvlc_media_player_set_media( _mp, media.libvlc_media_t() );
 }
