@@ -15,4 +15,6 @@ target_include_directories( libvlc_wrapper PUBLIC "libvlc-sdk/include" )
 
 if( MSVC )
     target_link_libraries( libvlc_wrapper ${CMAKE_CURRENT_SOURCE_DIR}/libvlc-sdk/lib/msvc/libvlc.lib )
+else()
+    target_link_libraries( libvlc_wrapper vlc )
 endif()
