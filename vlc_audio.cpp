@@ -76,7 +76,7 @@ unsigned audio::get_volume()
 void audio::set_volume( unsigned volume )
 {
     if( _player.is_open() ) {
-        libvlc_audio_set_volume( _player.get_mp() , volume );
+        libvlc_audio_set_volume( _player.get_mp(), volume );
         notify( audio_event_e::volume_changed );
     }
 }
