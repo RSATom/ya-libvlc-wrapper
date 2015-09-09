@@ -99,7 +99,7 @@ int player::add_media( const char * mrl_or_path,
     playlist_item item = { vlc::media( media, false ), false, std::string() };
     playlist_it it = _playlist.insert( _playlist.end(), item );
 
-    return it - _playlist.begin();
+    return static_cast<int>( it - _playlist.begin() );
 }
 
 int player::add_media( const vlc::media& media )
@@ -110,12 +110,12 @@ int player::add_media( const vlc::media& media )
     playlist_item item = { media, false, std::string() };
     playlist_it it = _playlist.insert( _playlist.end(), item );
 
-    return it - _playlist.begin();
+    return static_cast<int>( it - _playlist.begin() );
 }
 
 bool player::delete_item( unsigned idx )
 {
-    unsigned sz = _playlist.size();
+    unsigned sz = static_cast<unsigned>( _playlist.size() );
     assert( _current_idx >= 0 && unsigned( _current_idx ) < sz );
 
     if( sz && idx < sz ) {
@@ -156,9 +156,9 @@ void player::clear_items()
     //while current media is still playing
 }
 
-int player::item_count()
+unsigned player::item_count()
 {
-    return _playlist.size();
+    return static_cast<unsigned>( _playlist.size() );
 }
 
 void player::disable_item( unsigned idx, bool disable )
@@ -237,7 +237,7 @@ int player::find_media_index( const vlc::media& media )
             }
         );
 
-    return ( _playlist.end() == it ) ? -1 : ( it - _playlist.begin() );
+    return ( _playlist.end() == it ) ? -1 : static_cast<unsigned>( it - _playlist.begin() );
 }
 
 int player::current_item()
@@ -274,7 +274,7 @@ void player::play()
         //special case for empty playlist ( usually after clear_items() )
         _player.play();
     } else {
-        const unsigned sz = _playlist.size();
+        const unsigned sz = static_cast<unsigned>( _playlist.size() );
         int idx = _current_idx;
         if( idx < 0 )
             idx = 0;
@@ -297,7 +297,7 @@ bool player::play( unsigned idx )
 
 int player::find_valid_item( int start_from_idx, bool forward )
 {
-    const int sz = _playlist.size();
+    const int sz = static_cast<int>( _playlist.size() );
 
     if( !sz )
         return -1;
@@ -411,7 +411,7 @@ bool player::try_expand_current()
         } else {
             insert_it = _playlist.erase( _playlist.begin() + _current_idx );
         }
-        _current_idx = insert_it - _playlist.begin();
+        _current_idx = static_cast<int>( insert_it - _playlist.begin() );
         _playlist.insert( insert_it, sub_items.begin(), sub_items.end() );
         return true;
     }

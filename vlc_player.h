@@ -82,7 +82,7 @@ namespace vlc
 
         bool delete_item( unsigned idx );
         void clear_items();
-        int item_count();
+        unsigned item_count();
 
         void disable_item( unsigned idx, bool disable );
         bool is_item_disabled( unsigned idx );
