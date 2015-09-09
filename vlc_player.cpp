@@ -27,9 +27,12 @@
 
 #include <cassert>
 
+#include <limits>
 #include <algorithm>
 
 using namespace vlc;
+
+const unsigned PLAYLIST_MAX_SIZE = std::numeric_limits<short>::max();
 
 player::player()
     : _libvlc_instance( 0 ),
@@ -75,7 +78,7 @@ int player::add_media( const char * mrl_or_path,
                        unsigned trusted_optc, const char **trusted_optv,
                        bool is_path /*= false*/ )
 {
-    if( !is_open() )
+    if( !is_open() || _playlist.size() >= PLAYLIST_MAX_SIZE )
         return -1;
 
     libvlc_media_t* media = is_path ?
@@ -101,7 +104,7 @@ int player::add_media( const char * mrl_or_path,
 
 int player::add_media( const vlc::media& media )
 {
-    if( !is_open() )
+    if( !is_open() || _playlist.size() >= PLAYLIST_MAX_SIZE )
         return -1;
 
     playlist_item item = { media, false, std::string() };
@@ -359,7 +362,8 @@ void player::get_media_sub_items( const vlc::media& media, playlist_t* out )
 
     libvlc_media_list_lock( sub_items );
 
-    int sub_items_count = libvlc_media_list_count( sub_items );
+    int sub_items_count =
+        std::min<unsigned>( libvlc_media_list_count( sub_items ), PLAYLIST_MAX_SIZE );
 
     for( int i = 0; i < sub_items_count; ++i ) {
         libvlc_media_t* sub_item = libvlc_media_list_item_at_index( sub_items, i );
@@ -387,6 +391,10 @@ bool player::try_expand_current()
 
     playlist_t sub_items;
     get_media_sub_items( current_media, &sub_items );
+
+    if( _playlist.size() > PLAYLIST_MAX_SIZE - sub_items.size() ) {
+        sub_items.resize( PLAYLIST_MAX_SIZE - _playlist.size() );
+    }
 
     if( !current_media_data.empty() ) {
         for( auto& i: sub_items ) {
