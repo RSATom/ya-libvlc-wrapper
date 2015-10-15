@@ -29,6 +29,11 @@
 
 using namespace vlc;
 
+video::video( vlc::basic_player& player )
+    : _player( player )
+{
+}
+
 bool video::has_vout()
 {
     if( !_player.is_open() )

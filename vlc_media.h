@@ -67,4 +67,4 @@ namespace vlc
     private:
         ::libvlc_media_t* m_media;
     };
-};
+}

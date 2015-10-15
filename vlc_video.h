@@ -32,8 +32,7 @@ namespace vlc
     class video
     {
     public:
-        video( vlc::basic_player& player )
-            : _player( player ) {};
+        video( vlc::basic_player& player );
 
         unsigned track_count();
 

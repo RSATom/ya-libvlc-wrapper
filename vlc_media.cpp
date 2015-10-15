@@ -28,7 +28,7 @@
 using namespace vlc;
 
 media::media()
-    : m_media( 0 )
+    : m_media( nullptr )
 {
 }
 
