@@ -52,6 +52,7 @@ media media::create_media( libvlc_instance_t* inst,
 
     return media();
 }
+
 media::media()
     : m_media( nullptr )
 {
