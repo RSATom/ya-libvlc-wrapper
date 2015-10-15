@@ -27,6 +27,31 @@
 
 using namespace vlc;
 
+media media::create_media( libvlc_instance_t* inst,
+                           const char* mrl_or_path,
+                           unsigned optc, const char** optv,
+                           unsigned trusted_optc, const char** trusted_optv,
+                           bool is_path )
+{
+    ::libvlc_media_t* libvlc_media =
+        is_path ?
+            libvlc_media_new_path( inst, mrl_or_path ) :
+            libvlc_media_new_location( inst, mrl_or_path );
+
+    if( libvlc_media ) {
+        unsigned i;
+        for( i = 0; i < optc; ++i )
+            libvlc_media_add_option_flag( libvlc_media, optv[i], libvlc_media_option_unique );
+
+        for( i = 0; i < trusted_optc; ++i )
+            libvlc_media_add_option_flag( libvlc_media, trusted_optv[i],
+                                          libvlc_media_option_unique | libvlc_media_option_trusted );
+
+        return media( libvlc_media, false );
+    }
+
+    return media();
+}
 media::media()
     : m_media( nullptr )
 {
