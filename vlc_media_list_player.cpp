@@ -56,6 +56,9 @@ void media_list_player::events_attach( bool attach )
             case libvlc_MediaListWillAddItem:
             case libvlc_MediaListItemDeleted:
             case libvlc_MediaListWillDeleteItem:
+            case libvlc_MediaListPlayerPlayed:
+            case libvlc_MediaListPlayerNextItemSet:
+            case libvlc_MediaListPlayerStopped:
             if( attach )
                 libvlc_event_attach( em, e, event_proxy, this );
             else
