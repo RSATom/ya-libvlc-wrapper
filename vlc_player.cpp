@@ -32,21 +32,21 @@
 
 using namespace vlc;
 
-const unsigned PLAYLIST_MAX_SIZE = std::numeric_limits<short>::max();
+const unsigned vlc::PLAYLIST_MAX_SIZE = std::numeric_limits<short>::max();
 
-player::player()
-    : _libvlc_instance( 0 ),
-      _video( _player ), _audio( _player ), _subtitles( _player ),
-      _mode( mode_single ), _current_idx( -1 )
+player_core::player_core()
+    : _libvlc_instance( nullptr ),
+      _playback( _player ), _video( _player ),
+      _audio( _player ), _subtitles( _player )
 {
 }
 
-player::~player()
+player_core::~player_core()
 {
     close();
 }
 
-bool player::open( libvlc_instance_t* inst )
+bool player_core::open( libvlc_instance_t* inst )
 {
     _libvlc_instance = inst;
 
@@ -60,7 +60,7 @@ bool player::open( libvlc_instance_t* inst )
     return false;
 }
 
-void player::close()
+void player_core::close()
 {
     if( has_callbacks() )
         events_attach( false );
@@ -69,42 +69,153 @@ void player::close()
     clear_callbacks();
 
     _player.close();
-    clear_items();
     _libvlc_instance = 0;
 }
 
-int player::add_media( const char * mrl_or_path,
-                       unsigned optc, const char **optv,
-                       unsigned trusted_optc, const char **trusted_optv,
-                       bool is_path /*= false*/ )
+void player_core::pause()
 {
-    if( !is_open() || _playlist.size() >= PLAYLIST_MAX_SIZE )
+    _player.pause();
+}
+
+void player_core::togglePause()
+{
+    _player.togglePause();
+}
+
+void player_core::stop()
+{
+    _player.stop();
+}
+
+void player_core::event_proxy( const libvlc_event_t* e, void* param )
+{
+    if( !param )
+        return;
+
+    static_cast<player_core*>( param )->event( e );
+}
+
+void player_core::event( const libvlc_event_t* e )
+{
+    for_each_callback(
+        [e] ( media_player_events_callback *const & callback )
+        {
+            callback->media_player_event( e );
+        }
+    );
+}
+
+void player_core::events_attach( bool attach )
+{
+    if( !is_open() )
+        return;
+
+   libvlc_event_manager_t* em =
+        libvlc_media_player_event_manager( get_mp() );
+    if( !em )
+        return;
+
+    for( int e = libvlc_MediaPlayerMediaChanged; e <= libvlc_MediaPlayerVout; ++e ) {
+        switch( e ){
+        case libvlc_MediaPlayerMediaChanged:
+        case libvlc_MediaPlayerNothingSpecial:
+        case libvlc_MediaPlayerOpening:
+        case libvlc_MediaPlayerBuffering:
+        case libvlc_MediaPlayerPlaying:
+        case libvlc_MediaPlayerPaused:
+        case libvlc_MediaPlayerStopped:
+        case libvlc_MediaPlayerForward:
+        case libvlc_MediaPlayerBackward:
+        case libvlc_MediaPlayerEndReached:
+        case libvlc_MediaPlayerEncounteredError:
+        case libvlc_MediaPlayerTimeChanged:
+        case libvlc_MediaPlayerPositionChanged:
+        case libvlc_MediaPlayerSeekableChanged:
+        case libvlc_MediaPlayerPausableChanged:
+        case libvlc_MediaPlayerTitleChanged:
+        //case libvlc_MediaPlayerSnapshotTaken:
+        case libvlc_MediaPlayerLengthChanged:
+        //case libvlc_MediaPlayerVout:
+            if( attach )
+                libvlc_event_attach( em, e, event_proxy, this );
+            else
+                libvlc_event_detach( em, e, event_proxy, this );
+            break;
+        }
+    }
+}
+
+void player_core::register_callback( media_player_events_callback* callback )
+{
+    if( !has_callbacks() )
+        events_attach( true );
+
+    callbacks_holder::register_callback( callback );
+}
+
+void player_core::unregister_callback( media_player_events_callback* callback )
+{
+    callbacks_holder::unregister_callback( callback );
+
+    if( !has_callbacks() )
+        events_attach( false );
+}
+
+void player_core::swap( player_core* p )
+{
+    if( this == p )
+        return;
+
+    libvlc_instance_t *const tmp_libvlc = p->_libvlc_instance;
+    p->_libvlc_instance = _libvlc_instance;
+    _libvlc_instance = tmp_libvlc;
+
+    if( p->has_callbacks() )
+        p->events_attach( false );
+
+    if( has_callbacks() )
+        events_attach( false );
+
+    _player.swap( &( p->_player ) );
+
+    if( p->has_callbacks() )
+        p->events_attach( true );
+
+    if( has_callbacks() )
+        events_attach( true );
+}
+
+
+int playlist_player_core::add_media( const char* mrl_or_path,
+                                     unsigned optc, const char** optv,
+                                     unsigned trusted_optc, const char** trusted_optv,
+                                     bool is_path /*= false*/ )
+{
+    if( !is_open() )
         return -1;
 
-    libvlc_media_t* media = is_path ?
-                            libvlc_media_new_path( _libvlc_instance, mrl_or_path ) :
-                            libvlc_media_new_location( _libvlc_instance, mrl_or_path );
+    return add_media(
+        media::create_media( _libvlc_instance, mrl_or_path,
+                             optc, optv,
+                             trusted_optc, trusted_optv, is_path ) );
+}
 
-    if( !media )
-        return -1;
 
-    unsigned i;
-    for( i = 0; i < optc; ++i )
-        libvlc_media_add_option_flag( media, optv[i], libvlc_media_option_unique );
+player::player()
+    : _mode( mode_single ), _current_idx( -1 )
+{
+}
 
-    for( i = 0; i < trusted_optc; ++i )
-        libvlc_media_add_option_flag( media, trusted_optv[i],
-                                      libvlc_media_option_unique | libvlc_media_option_trusted );
+void player::close()
+{
+    player_core::close();
 
-    playlist_item item = { vlc::media( media, false ), false, std::string() };
-    playlist_it it = _playlist.insert( _playlist.end(), item );
-
-    return static_cast<int>( it - _playlist.begin() );
+    clear_items();
 }
 
 int player::add_media( const vlc::media& media )
 {
-    if( !is_open() || _playlist.size() >= PLAYLIST_MAX_SIZE )
+    if( !is_open() || _playlist.size() >= PLAYLIST_MAX_SIZE || !media )
         return -1;
 
     playlist_item item = { media, false, std::string() };
@@ -431,91 +542,6 @@ void player::next()
             expanded ? _current_idx : _current_idx + 1, true ) );
 }
 
-void player::pause()
-{
-    _player.pause();
-}
-
-void player::togglePause()
-{
-    _player.togglePause();
-}
-
-void player::stop()
-{
-    _player.stop();
-}
-
-float player::get_rate()
-{
-    if( !_player.is_open() )
-        return 1.f;
-
-    return libvlc_media_player_get_rate( _player.get_mp() );
-}
-
-void player::set_rate( float rate )
-{
-    if( !_player.is_open() )
-        return;
-
-    libvlc_media_player_set_rate( _player.get_mp(), rate );
-}
-
-float player::get_position()
-{
-    if( !is_open() )
-        return 0.f;
-
-    float p = libvlc_media_player_get_position( _player.get_mp() );
-
-    return p < 0 ? 0 : p;
-}
-
-void player::set_position( float p )
-{
-    if( !is_open() )
-        return;
-
-    libvlc_media_player_set_position( _player.get_mp(), p );
-}
-
-libvlc_time_t player::get_time()
-{
-    if( !is_open() )
-        return 0;
-
-    libvlc_time_t t = libvlc_media_player_get_time( _player.get_mp() );
-
-    return t < 0 ? 0 : t ;
-}
-
-void player::set_time( libvlc_time_t t )
-{
-    if( !is_open() )
-        return;
-
-    libvlc_media_player_set_time( _player.get_mp(), t );
-}
-
-libvlc_time_t player::get_length()
-{
-    if( !_player.is_open() )
-        return 0;
-
-    libvlc_time_t t = libvlc_media_player_get_length( _player.get_mp() );
-
-    return t < 0 ? 0 : t ;
-}
-
-float player::get_fps()
-{
-    if( !_player.is_open() )
-        return 0;
-
-    return libvlc_media_player_get_fps( _player.get_mp() );
-}
-
 playback_mode_e player::get_playback_mode()
 {
     return _mode;
@@ -526,96 +552,12 @@ void player::set_playback_mode( playback_mode_e m )
     _mode = m;
 }
 
-void player::event_proxy( const libvlc_event_t* e, void* param )
-{
-    if( !param )
-        return;
-
-    static_cast<player*>( param )->event( e );
-}
-
-void player::event( const libvlc_event_t* e )
-{
-    for_each_callback(
-        [e] ( media_player_events_callback *const & callback )
-        {
-            callback->media_player_event( e );
-        }
-    );
-}
-
-void player::events_attach( bool attach )
-{
-    if( !is_open() )
-        return;
-
-   libvlc_event_manager_t* em =
-        libvlc_media_player_event_manager( get_mp() );
-    if( !em )
-        return;
-
-    for( int e = libvlc_MediaPlayerMediaChanged; e <= libvlc_MediaPlayerVout; ++e ) {
-        switch( e ){
-        case libvlc_MediaPlayerMediaChanged:
-        case libvlc_MediaPlayerNothingSpecial:
-        case libvlc_MediaPlayerOpening:
-        case libvlc_MediaPlayerBuffering:
-        case libvlc_MediaPlayerPlaying:
-        case libvlc_MediaPlayerPaused:
-        case libvlc_MediaPlayerStopped:
-        case libvlc_MediaPlayerForward:
-        case libvlc_MediaPlayerBackward:
-        case libvlc_MediaPlayerEndReached:
-        case libvlc_MediaPlayerEncounteredError:
-        case libvlc_MediaPlayerTimeChanged:
-        case libvlc_MediaPlayerPositionChanged:
-        case libvlc_MediaPlayerSeekableChanged:
-        case libvlc_MediaPlayerPausableChanged:
-        case libvlc_MediaPlayerTitleChanged:
-        //case libvlc_MediaPlayerSnapshotTaken:
-        case libvlc_MediaPlayerLengthChanged:
-        //case libvlc_MediaPlayerVout:
-            if( attach )
-                libvlc_event_attach( em, e, event_proxy, this );
-            else
-                libvlc_event_detach( em, e, event_proxy, this );
-            break;
-        }
-    }
-}
-
-void player::register_callback( media_player_events_callback* callback )
-{
-    if( !has_callbacks() )
-        events_attach( true );
-
-    callbacks_holder::register_callback( callback );
-}
-
-void player::unregister_callback( media_player_events_callback* callback )
-{
-    callbacks_holder::unregister_callback( callback );
-
-    if( !has_callbacks() )
-        events_attach( false );
-}
-
 void player::swap( player* p )
 {
     if( this == p )
         return;
 
-    libvlc_instance_t *const tmp_libvlc = p->_libvlc_instance;
-    p->_libvlc_instance = _libvlc_instance;
-    _libvlc_instance = tmp_libvlc;
-
-    if( p->has_callbacks() )
-        p->events_attach( false );
-
-    if( has_callbacks() )
-        events_attach( false );
-
-    _player.swap( &( p->_player ) );
+    player_core::swap( p );
 
     _playlist.swap( p->_playlist );
 
@@ -626,10 +568,4 @@ void player::swap( player* p )
     const int tmp_current_idx = p->_current_idx;
     p->_current_idx = _current_idx;
     _current_idx = tmp_current_idx;
-
-    if( p->has_callbacks() )
-        p->events_attach( true );
-
-    if( has_callbacks() )
-        events_attach( true );
 }

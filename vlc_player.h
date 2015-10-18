@@ -32,6 +32,7 @@
 
 #include "callbacks_holder.h"
 #include "vlc_basic_player.h"
+#include "vlc_playback.h"
 #include "vlc_audio.h"
 #include "vlc_video.h"
 #include "vlc_subtitles.h"
@@ -51,22 +52,72 @@ namespace vlc
         virtual void media_player_event( const libvlc_event_t* e ) = 0;
     };
 
-    class player
+    class player_core
         : protected callbacks_holder<media_player_events_callback>
     {
         typedef callbacks_holder<media_player_events_callback> callbacks_holder;
 
     public:
-        player();
-        ~player();
+        player_core();
+        ~player_core();
 
-        bool open( libvlc_instance_t* inst );
-        void close();
+        virtual bool open( libvlc_instance_t* );
+        virtual void close();
 
         bool is_open() const { return _player.is_open(); }
 
         libvlc_state_t get_state() { return _player.get_state(); }
         bool is_playing() { return libvlc_Playing == get_state(); }
+
+        vlc::media current_media()
+            { return _player.current_media(); }
+
+        virtual void play() = 0;
+        void pause();
+        void togglePause();
+        void stop();
+
+        vlc::basic_player& basic_player() { return _player; }
+
+        vlc::playback& playback() { return _playback; }
+        vlc::video& video() { return _video; }
+        vlc::audio& audio() { return _audio; }
+        vlc::subtitles& subtitles() { return _subtitles; }
+
+        libvlc_media_player_t* get_mp() const
+            { return _player.get_mp(); }
+
+        //events will come from worker thread
+        void register_callback( media_player_events_callback* ) override;
+        void unregister_callback( media_player_events_callback* ) override;
+
+        void swap( player_core* );
+
+    private:
+        void event( const libvlc_event_t* );
+
+    protected:
+        static void event_proxy( const libvlc_event_t* , void* );
+        virtual void events_attach( bool attach );
+
+    protected:
+        libvlc_instance_t* _libvlc_instance;
+        vlc::basic_player  _player;
+
+    private:
+        vlc::playback      _playback;
+        vlc::video         _video;
+        vlc::audio         _audio;
+        vlc::subtitles     _subtitles;
+    };
+
+    extern const unsigned PLAYLIST_MAX_SIZE;
+
+    class playlist_player_core : public player_core
+    {
+    public:
+        virtual playback_mode_e get_playback_mode() = 0;
+        virtual void set_playback_mode( playback_mode_e m ) = 0;
 
         int add_media( const char* mrl_or_path,
                        unsigned optc, const char **optv,
@@ -78,63 +129,70 @@ namespace vlc
                        unsigned optc, const char** optv,
                        unsigned trusted_optc, const char** trusted_optv,
                        bool is_path = false );
-        int add_media( const vlc::media& media );
 
-        bool delete_item( unsigned idx );
-        void clear_items();
-        unsigned item_count();
+        virtual int add_media( const vlc::media& media ) = 0;
 
-        void disable_item( unsigned idx, bool disable );
-        bool is_item_disabled( unsigned idx );
+        virtual unsigned item_count() = 0;
 
-        void set_item_data( unsigned idx, const std::string& );
-        const std::string& get_item_data( unsigned idx );
+        virtual bool delete_item( unsigned idx ) = 0;
+        virtual void clear_items() = 0;
 
-        void advance_item( unsigned idx, int count );
+        virtual vlc::media get_media( unsigned idx ) = 0;
 
-        vlc::media get_media( unsigned idx );
-        vlc::media current_media()
-            { return _player.current_media(); }
-        int find_media_index( const vlc::media& );
+        virtual int find_media_index( const vlc::media& ) = 0;
 
-        int current_item();
-        void set_current( unsigned idx );
+        virtual void disable_item( unsigned idx, bool disable ) = 0;
+        virtual bool is_item_disabled( unsigned idx ) = 0;
 
-        void play();
-        bool play( unsigned idx );
-        void pause();
-        void togglePause();
-        void stop();
-        void next();
-        void prev();
+        virtual void set_item_data( unsigned idx, const std::string& ) = 0;
+        virtual const std::string& get_item_data( unsigned idx ) = 0;
 
-        float get_rate();
-        void set_rate( float );
+        virtual void advance_item( unsigned idx, int count ) = 0;
 
-        float get_position();
-        void set_position( float );
+        virtual int current_item() = 0;
+        virtual void set_current( unsigned idx ) = 0 ;
 
-        libvlc_time_t get_time();
-        void set_time( libvlc_time_t );
+        using player_core::play;
+        virtual bool play( unsigned idx ) = 0;
+        virtual void next() = 0;
+        virtual void prev() = 0;
+    };
 
-        libvlc_time_t get_length();
+    class player: public playlist_player_core
+    {
+    public:
+        player();
 
-        float get_fps();
+        void close() override;
 
-        playback_mode_e get_playback_mode();
-        void set_playback_mode( playback_mode_e m );
+        void play() override;
+        bool play( unsigned idx ) override;
+        void next() override;
+        void prev() override;
 
-        vlc::basic_player& basic_player() { return _player; }
-        vlc::video& video() { return _video; }
-        vlc::audio& audio() { return _audio; }
-        vlc::subtitles& subtitles() { return _subtitles; }
+        playback_mode_e get_playback_mode() override;
+        void set_playback_mode( playback_mode_e m ) override;
 
-        libvlc_media_player_t* get_mp() const
-            { return _player.get_mp(); }
+        using playlist_player_core::add_media;
+        int add_media( const vlc::media& media ) override;
 
-        //events will come from worker thread
-        void register_callback( media_player_events_callback* ) override;
-        void unregister_callback( media_player_events_callback* ) override;
+        void advance_item( unsigned idx, int count ) override;
+
+        bool delete_item( unsigned idx ) override;
+        void clear_items() override;
+        unsigned item_count() override;
+
+        vlc::media get_media( unsigned idx ) override;
+        int find_media_index( const vlc::media& ) override;
+
+        int current_item() override;
+        void set_current( unsigned idx ) override;
+
+        void disable_item( unsigned idx, bool disable ) override;
+        bool is_item_disabled( unsigned idx ) override;
+
+        void set_item_data( unsigned idx, const std::string& ) override;
+        const std::string& get_item_data( unsigned idx ) override;
 
         void swap( player* );
 
@@ -156,18 +214,7 @@ namespace vlc
         void internal_play( int idx );
         int find_valid_item( int start_from_idx, bool forward );
 
-        static void event_proxy( const libvlc_event_t* , void* );
-        void event( const libvlc_event_t* );
-        void events_attach( bool attach );
-
     private:
-        libvlc_instance_t* _libvlc_instance;
-
-        vlc::basic_player  _player;
-        vlc::video         _video;
-        vlc::audio         _audio;
-        vlc::subtitles     _subtitles;
-
         playback_mode_e _mode;
         playlist_t _playlist;
         int        _current_idx;
