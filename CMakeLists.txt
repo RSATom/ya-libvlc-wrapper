@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 2.8.11 )
+cmake_minimum_required( VERSION 2.8 )
 
 if( NOT MSVC )
     add_definitions( -std=c++11 )
@@ -11,7 +11,7 @@ file( GLOB SOURCE_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 
 add_library( libvlc_wrapper STATIC ${SOURCE_FILES} )
 set_target_properties( libvlc_wrapper PROPERTIES POSITION_INDEPENDENT_CODE ON )
-target_include_directories( libvlc_wrapper PUBLIC "libvlc-sdk/include" )
+include_directories( "${CMAKE_CURRENT_SOURCE_DIR}/libvlc-sdk/include" )
 
 if( MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8 )
     find_library( LIBVLC_LIBRARY NAMES libvlc.x64
