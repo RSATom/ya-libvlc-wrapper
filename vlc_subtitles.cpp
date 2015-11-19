@@ -89,5 +89,8 @@ void subtitles::set_delay( int64_t d )
 
 bool subtitles::load( const std::string& file )
 {
+    if( !_player.is_open() )
+        return false;
+
     return 0 != libvlc_video_set_subtitle_file( _player.get_mp(), file.c_str() );
 }
