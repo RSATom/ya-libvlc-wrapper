@@ -77,4 +77,4 @@ namespace vlc
     private:
         vlc::basic_player& _player;
     };
-};
+}
