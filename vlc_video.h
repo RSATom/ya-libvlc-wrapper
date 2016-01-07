@@ -42,6 +42,9 @@ namespace vlc
 
         bool has_vout();
 
+        std::string get_aspect();
+        void set_aspect( const std::string& );
+
         std::string get_crop();
         void set_crop( const std::string& );
 

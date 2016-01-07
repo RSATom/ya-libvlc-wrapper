@@ -42,6 +42,28 @@ bool video::has_vout()
     return libvlc_media_player_has_vout( _player.get_mp() ) > 0;
 }
 
+std::string vlc::video::get_aspect()
+{
+    if( !_player.is_open() )
+        return std::string();
+
+    std::string aspect;
+    char* c = libvlc_video_get_aspect_ratio( _player.get_mp() );
+    if ( c )
+        aspect = c;
+    libvlc_free( c );
+
+    return aspect;
+}
+
+void vlc::video::set_aspect( const std::string& aspect )
+{
+    if( !_player.is_open() )
+        return;
+
+    libvlc_video_set_aspect_ratio( _player.get_mp(), aspect.c_str() );
+}
+
 std::string vlc::video::get_crop()
 {
     if( !_player.is_open() )
