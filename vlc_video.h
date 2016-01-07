@@ -42,6 +42,9 @@ namespace vlc
 
         bool has_vout();
 
+        std::string get_crop();
+        void set_crop( const std::string& );
+
         float get_contrast()
             { return get_ajust_filter_var( libvlc_adjust_Contrast, 1.0f ); }
         void set_contrast( float val )

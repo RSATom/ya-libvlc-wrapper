@@ -42,6 +42,28 @@ bool video::has_vout()
     return libvlc_media_player_has_vout( _player.get_mp() ) > 0;
 }
 
+std::string vlc::video::get_crop()
+{
+    if( !_player.is_open() )
+        return std::string();
+
+    std::string crop;
+    char* c = libvlc_video_get_crop_geometry( _player.get_mp() );
+    if ( c )
+        crop = c;
+    libvlc_free( c );
+
+    return crop;
+}
+
+void vlc::video::set_crop( const std::string& crop )
+{
+    if( !_player.is_open() )
+        return;
+
+    libvlc_video_set_crop_geometry( _player.get_mp(), crop.c_str() );
+}
+
 float video::get_ajust_filter_var( libvlc_video_adjust_option_t option,
                                    float def_v )
 {
