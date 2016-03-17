@@ -139,8 +139,13 @@ bool media::is_parsed() const
     return false;
 }
 
-void media::parse()
+void media::parse( bool async /*= false*/ )
 {
-    if( m_media )
+    if( !m_media )
+        return;
+
+    if( async )
+        libvlc_media_parse_async( m_media );
+    else
         libvlc_media_parse( m_media );
 }
