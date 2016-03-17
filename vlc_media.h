@@ -63,6 +63,8 @@ namespace vlc
         bool is_parsed() const;
         void parse( bool async = false );
 
+        libvlc_time_t duration() const;
+
         std::string mrl() const;
         std::string meta( ::libvlc_meta_t meta_id ) const;
         void set_meta( ::libvlc_meta_t meta_id, const std::string& meta );

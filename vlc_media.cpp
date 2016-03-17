@@ -149,3 +149,11 @@ void media::parse( bool async /*= false*/ )
     else
         libvlc_media_parse( m_media );
 }
+
+libvlc_time_t media::duration() const
+{
+    if( !m_media )
+        return 0;
+
+    return libvlc_media_get_duration( m_media );
+}
