@@ -28,7 +28,7 @@
 using namespace vlc;
 
 media_list_player::media_list_player()
-    : _media_list( nullptr ), _media_list_player( nullptr )
+    : _media_list( nullptr ), _media_list_player( nullptr ), _mode( mode_normal )
 {
 }
 
@@ -80,6 +80,7 @@ bool media_list_player::open( libvlc_instance_t* inst )
     if( _media_list_player ) {
         libvlc_media_list_player_set_media_list( _media_list_player, _media_list );
         libvlc_media_list_player_set_media_player( _media_list_player, get_mp() );
+        set_playback_mode( _mode );
         return true;
     }
 
@@ -149,7 +150,8 @@ void media_list_player::set_playback_mode( playback_mode_e m )
     }
 
     _mode = m;
-    libvlc_media_list_player_set_playback_mode( _media_list_player, libvlcMode );
+    if(_media_list_player)
+        libvlc_media_list_player_set_playback_mode( _media_list_player, libvlcMode );
 }
 
 int media_list_player::add_media( const vlc::media& media )
