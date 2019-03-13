@@ -108,6 +108,10 @@ unsigned vmem::video_format_cb( char* chroma,
                 *width  = static_cast<unsigned>( *height * src_aspect + 0.5 );
             }
         }
+    } else {
+        // custom vmem plugin should be used
+        *width = *(width + 1);
+        *height = *(height + 1);
     }
 
     _media_width  = *width;
